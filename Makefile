@@ -24,10 +24,15 @@ endif
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	$(PYTHON_INTERPRETER) -m spacy download en_core_web_lg
+
+services: requirements
+	$(PYTHON_INTERPRETER) src/data/cloud/aws.py data/raw/aws_services.csv
+	$(PYTHON_INTERPRETER) src/data/cloud/azure.py data/raw/azure_services.csv
 
 ## Make Dataset
 data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py
+	$(PYTHON_INTERPRETER) src/data/make_dataset
 
 ## Delete all compiled Python files
 clean:
