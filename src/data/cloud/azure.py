@@ -39,10 +39,10 @@ def scrape_azure_services(output_filepath):
             azure_services.append({
                 'category_id': category_id,
                 'category_name': category.text.strip(),
-                'id': service_name.replace(' ', '-').lower(),
                 'icon': f"{AZURE_DOCS_URL}{card_soup.find('img')['src']}",
                 'name': service_name,
-                'description': card_soup.find('p').text.strip(),
+                'short_description': card_soup.find('p').text.strip(),
+                'long_description': card_soup.find('p').text.strip(),
                 'link': f"https://docs.microsoft.com{link_soup['href']}"
             })
 

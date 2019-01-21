@@ -27,8 +27,9 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m spacy download en_core_web_lg
 
 services: requirements
-	$(PYTHON_INTERPRETER) src/data/cloud/aws.py data/raw/aws_services.csv
-	$(PYTHON_INTERPRETER) src/data/cloud/azure.py data/raw/azure_services.csv
+	# $(PYTHON_INTERPRETER) src/data/cloud/aws.py data/raw/aws_services.csv
+	# $(PYTHON_INTERPRETER) src/data/cloud/azure.py data/raw/azure_services.csv
+	$(PYTHON_INTERPRETER) src/data/cloud/google.py data/raw/gcp_services.csv
 
 ## Make Dataset
 data: requirements
