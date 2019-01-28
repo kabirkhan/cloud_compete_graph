@@ -57,7 +57,11 @@ def scrape_google_services(output_filepath):
                     pass
             
             services.append(service)
-        pd.DataFrame(services).to_csv(output_filepath, index=False)
+        gcp_services = pd.DataFrame(services)
+        gcp_services = gcp_services[[
+            'category_name', 'name', 'short_description', 'long_description', 'link', 'icon'
+        ]]
+        gcp_services.to_csv(output_filepath, index=False)
 
 
 if __name__ == '__main__':

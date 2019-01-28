@@ -1,0 +1,7 @@
+[
+    {"field": "category_name", "type": "String"},
+    {"field": "name", "type": "String"},
+    {"field": "name", "type": "Text", "corpus": "[descriptions]"},
+    {"field": "short_description", "type": "Text", "has missing": true, "corpus": "[descriptions]"},
+    {"field": "long_description", "type": "Text", "has missing": true, "corpus": "[descriptions]"}
+]

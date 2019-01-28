@@ -26,10 +26,19 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 	$(PYTHON_INTERPRETER) -m spacy download en_core_web_lg
 
+## Make Services
 services: requirements
-	# $(PYTHON_INTERPRETER) src/data/cloud/aws.py data/raw/aws_services.csv
-	# $(PYTHON_INTERPRETER) src/data/cloud/azure.py data/raw/azure_services.csv
+	$(PYTHON_INTERPRETER) src/data/cloud/aws.py data/raw/aws_services.csv
+	$(PYTHON_INTERPRETER) src/data/cloud/azure.py data/raw/azure_services.csv
 	$(PYTHON_INTERPRETER) src/data/cloud/google.py data/raw/gcp_services.csv
+
+## Make Graph
+graph: #requirements
+	# services
+	$(PYTHON_INTERPRETER) src/data/graph/make_graph.py data/raw/
+
+related_services: 
+	$(PYTHON_INTERPRETER) src/data/graph/add_related_services.py data/processed/aws_azure_data_matching_output.csv
 
 ## Make Dataset
 data: requirements

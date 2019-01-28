@@ -18,4 +18,6 @@ requests
 spacy==2.0.18
 fuzzywuzzy==0.17.0
 python-levenshtein==0.12.0
-gremlinpython
+gremlinpython==3.2.7
+hug
+uwsgi

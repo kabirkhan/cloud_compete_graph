@@ -50,6 +50,7 @@ def scrape_aws_services(output_filepath):
         })
     aws_services_df = pd.DataFrame(aws_services)
     aws_df = pd.merge(aws_categories_df, aws_services_df, on='category_id')
+    aws_df = aws_df[['category_id', 'category_name', 'name', 'short_description', 'long_description', 'link', 'icon']]
 
     aws_df.to_csv(output_filepath, index=False)
 
