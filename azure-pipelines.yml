@@ -15,7 +15,7 @@ variables:
 
 steps:
 - script: |
-    az login --service-principal --username $(az_sp_id) --password $(az_sp_password) --tenant $(az_sp_tenant_id)
+    az login --service-principal --username $(az_sp_id) --password "$(az_sp_password)" --tenant $(az_sp_tenant_id)
     az aks install-cli
     az aks get-credentials -g $(aks_cluster_resource_group) -n $(aks_cluster_name)
   displayName: Login with Azure CLI
