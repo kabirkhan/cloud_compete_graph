@@ -75,11 +75,9 @@ def get_related_services(service_id):
                 "long_description", "uri", "icon_uri", "related_services"
             ).by("id").by("label").by("name").by("short_description")
              .by("long_description").by("uri").by("icon_uri")
-             .by(out("related_service"))"""
+             .by(coalesce(out("related_service").project("id", "name").by("id").by("name"), constant([])))"""
     
-    res = gremlin_qm.query(q)
-    print(res)
-    res[0]['related_services'] = [{'id': res[0]['related_services']['id']}]
+    res = gremlin_qm.query(q)    
     
     return res[0]
 

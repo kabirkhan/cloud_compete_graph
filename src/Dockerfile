@@ -10,6 +10,7 @@ RUN python -m spacy download en
 
 COPY ./app ./app
 COPY ./data ./data
+COPY ./models ./models
 
 COPY start.sh .
 CMD ["bash", "start.sh"]

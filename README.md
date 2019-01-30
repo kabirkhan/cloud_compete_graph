@@ -1,7 +1,25 @@
-Cloud Compete Graph
+Cloud Compete Graph (CCG)
 ==============================
 
-A Concept Graph to analyze the Cloud Compete Landscape
+CCG is a Concept Graph to the maps and analyzes the cloud compete landscape.
+
+Current Cloud Providers:
+- [Microsoft Azure](https://azure.microsoft.com/)
+- [Amazon Web Services](https://aws.amazon.com/)
+- [Google Cloud](https://cloud.google.com/)
+- More coming soon...
+
+API Docs for interacting with the graph
+http://ccg.cloudapp.azure.com/ccg/
+
+Published search index for all cloud services
+https://ccg.search.windows.net/indexes/services-v0/docs?api-version=2017-11-11&search=*
+
+
+## How it's made
+
+
+
 
 Project Organization
 ------------

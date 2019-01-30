@@ -1,0 +1,54 @@
+trigger:
+  batch: true
+  branches:
+    include: [master]
+
+pool:
+  vmImage: 'ubuntu-16.04'
+
+variables:
+  buildConfiguration: Release
+  acr_user_id: ccg
+  acr_name: ccg
+  aks_cluster_resource_group: cloud_compete_concept_graph
+  aks_cluster_name: ccg
+
+steps:
+- script: |
+    az login --service-principal --username $(az_sp_id) --password $(az_sp_password) --tenant $(az_sp_tenant_id)
+    az aks install-cli
+    az aks get-credentials -g $(aks_cluster_resource_group) -n $(aks_cluster_name)
+  displayName: Login with Azure CLI
+- script: |
+    curl https://s3.amazonaws.com/datawire-static-files/forge/$(curl https://s3.amazonaws.com/datawire-static-files/forge/latest.url)/forge -o /tmp/forge
+    chmod a+x /tmp/forge
+    sudo mv /tmp/forge /usr/local/bin 
+  displayName: Install forge binary
+- script: |
+    echo "# Global forge configuration" >> ./forge.yaml
+    echo "# DO NOT CHECK INTO GITHUB, THIS FILE CONTAINS SECRETS" >> ./forge.yaml
+    echo "registry:" >> ./forge.yaml
+    echo "  type: docker" >> ./forge.yaml
+    echo "  url: ccgcr.azurecr.io" >> ./forge.yaml
+    echo "  user: ccgcr" >> ./forge.yaml
+    echo -n "  password: " >> ./forge.yaml
+    printf $pswd | base64 >> ./forge.yaml
+    echo "  namespace: ccgcr" >> ./forge.yaml
+  env:
+    pswd: $(acr_password)
+  displayName: Write forge configuration
+- script: |
+    forge build
+  displayName: Build image with forge
+- script: |
+    DOCKER_IMAGE=$(docker images -q | sed 1q)
+    docker run -i "$DOCKER_IMAGE" /bin/bash -c "flake8 ./app"
+  displayName: Run flake8
+  continueOnError: true
+- script: |
+    DOCKER_IMAGE=$(docker images -q | sed 1q)
+    docker run -i -v junit:/usr/src "$DOCKER_IMAGE" /bin/bash -c "pytest app/tests --doctest-modules --junitxml=junit/test-results.xml --cov --cov-report=xml --cov-report=html"
+  displayName: Test with pytest
+- script: |
+    forge --profile stable deploy
+  displayName: Deploy to $(aks_cluster_name) cluster
