@@ -1,94 +1,130 @@
 import os
+import sys
 
-import hug
-import falcon
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+
+from marshmallow import Schema, fields, ValidationError
+
+from starlette.applications import Starlette
+from starlette.config import Config
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+from starlette.schemas import OpenAPIResponse
+from starlette_apispec import APISpecSchemaGenerator
+import uvicorn
+import yaml
 from dotenv import load_dotenv, find_dotenv
-from src.data.cosmos import DocumentQueryManager, GremlinQueryManager
-from src.data.graph.gremlin import GremlinQueryBuilder
+from azure.storage.blob import BlockBlobService
+
+from src.app.exceptions import DocumentParseError
+from src.app.schemas import DocumentSchema, DocumentsSchema, DocumentServicesSchema, ServicesResponseSchema, MatchSchema, ServiceSchema
+from src.app.services.ner import CloudServiceExtractor
+from src.data.search.azure_search import AzureSearchClient
 
 
 load_dotenv(find_dotenv())
+search_account_name = os.environ.get('AZURE_SEARCH_ACCOUNT_NAME')
+search_api_key = os.environ.get('AZURE_SEARCH_KEY')
 
-account_name = os.environ.get('COSMOS_ACCOUNT_NAME')
-db_name = os.environ.get('COSMOS_DB_NAME')
-graph_name = os.environ.get('COSMOS_GRAPH_NAME')
-master_key = os.environ.get('COSMOS_MASTER_KEY')
+blob_service = BlockBlobService('ccgmlmodels', sas_token='?sv=2018-03-28&ss=b&srt=sco&sp=rl&se=2020-02-01T02:59:06Z&st=2019-01-31T18:59:06Z&spr=https&sig=xNlhxlgrHmoKZj2eeHl7VdXLeH0LNJGwqcaLzW61oe4%3D')
+search_client = AzureSearchClient(search_account_name, search_api_key)
 
-gremlin_qm = GremlinQueryManager(account_name, master_key, db_name, graph_name)
-
-
-def get_value(res, k):
-    if k in res['properties']:
-        if len(res['properties'][k]) == 1:
-            return res['properties'][k]['value']
+cse = CloudServiceExtractor(blob_service, search_client)
 
 
-@hug.get('/clouds')
-def get_clouds(cloud_id=None):
-    project_str = '.project("id", "name", "abbreviation").by("id").by("name").by("abbreviation")'
-    if cloud_id:
-        q = f'g.V("{cloud_id}"){project_str}'
-    
-        res = gremlin_qm.query(q)[0]
-    else:
-        q = f'g.V().has("label", "cloud"){project_str}'
-        res = gremlin_qm.query(q)
-
-    return res
-    # return {
-    #     'id': res['id'],
-    #     'name': get_value(res, 'name'),
-    #     'abbreviation': get_value(res, 'abbreviation')
-    # }
+app = Starlette(debug=True)
+app.schema_generator = APISpecSchemaGenerator(
+    APISpec(
+        title="Cloud Compete Graph NER",
+        version="1.0",
+        openapi_version="3.0.0",
+        info={"description": "API for the Cloud Compete Graph Named Entity Recognition models"},
+        plugins=[MarshmallowPlugin()]
+    )
+)
+app.schema_generator.spec.components.schema('DocumentSchema', schema=DocumentSchema)
+app.schema_generator.spec.components.schema('ServicesResponseSchema', schema=ServicesResponseSchema)
 
 
-@hug.get('/categories')
-def get_categories(cloud_id=None):
+@app.route('/extract', methods=["POST"])
+async def homepage(request: Request):
+    """
+    summary: Extract cloud services from document text as Named Entities
+    requestBody:
+        description: List of documents
+        required: true
+        content:
+          application/json:
+            schema: DocumentsSchema
+    responses:
+      200:
+        description: Cloud services extracted from text
+        content:
+          application/json:
+            schema: ServicesResponseSchema
+    """
+    response = None
+    try:
+        body = await request.json()
+        docsSchema = DocumentsSchema()
+        docs = docsSchema.load(body)
 
-    if cloud_id:
-        project_str = GremlinQueryBuilder.build_project_clause(['id', 'label', 'name'])
-        q = f'g.V("{cloud_id}").in("source_cloud"){project_str}'
-    else:
-        q = 'g.V().has("label", "category")'
+        documents_res = []
+        for doc in docs['documents']:
+            cloud_services = {}
+            for ent, service in cse.extract(doc['text']):
+                if service['id'] not in cloud_services:
+                    cloud_services[service['id']] = {
+                        'serviceId': service['id'],
+                        'serviceName': service['name'],
+                        'serviceShortDescription': service['shortDescription'],
+                        'serviceUri': service['uri'],
+                        'serviceCategories': service['categories'],
+                        'relatedServices': service['relatedServices'],
+                        'matches': []
+                    }
+                cloud_services[service['id']]['matches'].append({
+                    'text': ent.text,
+                    'label': ent.label_,
+                    'start': ent.start_char,
+                    'end': ent.end_char
+                })
+            
+            documents_res.append({
+                'id': doc['id'],
+                'cloudServices': list(cloud_services.values())
+            })
+            
+        response = JSONResponse({'documents': documents_res})
+    except ValidationError as e:
+        print(e)
+        response = JSONResponse(e.messages, status_code=400)
+    except DocumentParseError as e:
+        print(e)
+        response = JSONResponse(
+            {'message': 'Error parsing your documents. Make sure you remove special characters from all documents.'},
+            status_code=400
+        )
+    except Exception as e:
+        print(e)
+        response = JSONResponse(
+            {'message': 'Request failed for an unknown reason. Please try again later.'},
+            status_code=500
+        )
 
-    print(q)
-
-    res = gremlin_qm.query(q)
-    return res
+    return response
 
 
-@hug.get('/categories/{category_id}/services')
-def get_services(category_id):
-    project_str = GremlinQueryBuilder.build_project_clause([
-        'id', 'label', 'name', 'short_description', 'long_description', 'uri', 'icon_uri'
-    ])
-    q = f"g.V('{category_id}').in('belongs_to'){project_str}"
-    res = gremlin_qm.query(q)
-    return res
+@app.route("/schema", methods=["GET"], include_in_schema=False)
+def schema(request):
+    return OpenAPIResponse(app.schema)
 
 
-@hug.get('/services/{service_id}')
-def get_related_services(service_id):
-    q = f"""g.V("{service_id}")
-            .project(
-                "id", "label", "name", "short_description",
-                "long_description", "uri", "icon_uri", "related_services"
-            ).by("id").by("label").by("name").by("short_description")
-             .by("long_description").by("uri").by("icon_uri")
-             .by(coalesce(out("related_service").project("id", "name").by("id").by("name"), constant([])))"""
-    
-    res = gremlin_qm.query(q)    
-    
-    return res[0]
+if __name__ == '__main__':
+    assert sys.argv[-1] in ("run", "schema"), "Usage: example.py [run|schema]"
 
-
-@hug.post('/gremlin')
-def run_gremlin_query(query, response):
-    q = GremlinQueryBuilder.gremlin_escape(query)
-    if 'drop' in q or 'add' in q:
-        response.status = falcon.HTTP_400
-        return "No `drop` or `add` queries are allowed, only traversals."
-    else:
-        res = gremlin_qm.query(q)
-        print(res, q)
-        return res
+    if sys.argv[-1] == "run":
+        uvicorn.run(app, host='0.0.0.0', port=8000, debug=True)
+    elif sys.argv[-1] == "schema":
+        print(yaml.dump(app.schema, default_flow_style=False))

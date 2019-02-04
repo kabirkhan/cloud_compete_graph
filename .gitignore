@@ -1,6 +1,13 @@
 .venv
 .vscode
 
+src/forge.yaml
+forge.yaml
+.forge
+
+models/*
+src/app/services/models/*
+**/models
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

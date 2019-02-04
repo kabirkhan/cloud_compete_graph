@@ -9,15 +9,46 @@ Current Cloud Providers:
 - [Google Cloud](https://cloud.google.com/)
 - More coming soon...
 
-API Docs for interacting with the graph
-http://ccg.cloudapp.azure.com/ccg/
+<!-- API Docs for interacting with the graph
+http://ccg.cloudapp.azure.com/ccg/ -->
 
-Published search index for all cloud services
-https://ccg.search.windows.net/indexes/services-v0/docs?api-version=2017-11-11&search=*
 
+## Components
+
+All services are behind an Azure API Management instance.
+Take a look at the /swagger.json Open API spec in the root directory.
+I'm working on a site to manage subscriptions and docs better moving forward
+
+1. Azure Cosmos DB Graph Database
+This is the core of the project, the actual concept graph
+
+2. Cloud services Search Index
+Allows you to search and get autocomplete queries for services from all cloud providers.
+
+Published search index with CORS="*" enabled.
+
+3. Named Entity Recognition model for identifying services in unstructured text data.
+Imagine you're reading an article about Azure's serverless cloud offerings.
+This model can extract Azure Functions, function app, function, etc in context and resolve that entity to the Azure Functions entity in the graph. From there you can get all the service metadata, a link to learn more and related services like AWS Lambda from Amazon Web Services
+
+Currently this model only supports Azure services. I'm working on expanding this functionality.
+
+- Azure NER Model: models/ner_azure_v0
+
+All NER models are trained using Prodigy and [Spacy](https://spacy.io) and can be loaded like any other spacy model
+
+```python
+import spacy
+nlp = spacy.load('models/ner_azure_v0')
+text = "Azure functions, Microsoft's serverless offering now supports linux and python" 
+doc = nlp(text)
+list(doc.ents)
+```
 
 ## How it's made
 
+Info coming soon. For now use the points above to use the preconfigured service.
+I'll add instructions and better pipelines for building everything yourself.
 
 
 

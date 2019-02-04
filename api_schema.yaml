@@ -1,0 +1,124 @@
+components:
+  parameters: {}
+  responses: {}
+  schemas:
+    DocumentSchema:
+      properties:
+        id:
+          type: string
+        language:
+          type: string
+        text:
+          type: string
+      required:
+      - id
+      - language
+      - text
+      type: object
+    DocumentServices:
+      items:
+        properties:
+          cloudServices:
+            items:
+              $ref: '#/components/schemas/Service'
+            type: array
+          id:
+            type: string
+        required:
+        - cloudServices
+        - id
+        type: object
+      type: array
+    Documents:
+      properties:
+        documents:
+          items:
+            $ref: '#/components/schemas/DocumentSchema'
+          type: array
+      required:
+      - documents
+      type: object
+    Match:
+      items:
+        properties:
+          end:
+            format: int32
+            type: integer
+          label:
+            type: string
+          start:
+            format: int32
+            type: integer
+          text:
+            type: string
+        required:
+        - end
+        - label
+        - start
+        - text
+        type: object
+      type: array
+    Service:
+      items:
+        properties:
+          matches:
+            items:
+              $ref: '#/components/schemas/Match'
+            type: array
+          relatedServices:
+            items:
+              type: string
+            type: array
+          serviceCategories:
+            items:
+              type: string
+            type: array
+          serviceName:
+            type: string
+          serviceShortDescription:
+            type: string
+          serviceUri:
+            format: url
+            type: string
+        required:
+        - matches
+        - relatedServices
+        - serviceCategories
+        - serviceName
+        - serviceShortDescription
+        - serviceUri
+        type: object
+      type: array
+    ServicesResponseSchema:
+      properties:
+        documents:
+          items:
+            $ref: '#/components/schemas/DocumentServices'
+          type: array
+      required:
+      - documents
+      type: object
+info:
+  description: API for the Cloud Compete Graph Named Entity Recognition models
+  title: Cloud Compete Graph NER
+  version: '1.0'
+openapi: 3.0.0
+paths:
+  /extract:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Documents'
+        description: List of documents
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesResponseSchema'
+          description: Cloud services extracted from text
+      summary: Extract cloud services from document text as Named Entities
+tags: []
