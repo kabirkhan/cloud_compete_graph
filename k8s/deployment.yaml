@@ -45,10 +45,10 @@ spec:
         resources:
           requests:
             memory: 2G
-            cpu: 2
+            cpu: 1
           limits:
             memory: 2G
-            cpu: 2
+            cpu: 1
         ports:
         - name: http-api
           containerPort: 8080

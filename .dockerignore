@@ -6,3 +6,7 @@ reports
 models
 **/models
 src/app/services/models
+src/features
+src/ui
+src/visualization
+src/features
