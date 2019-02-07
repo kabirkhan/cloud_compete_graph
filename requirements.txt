@@ -27,3 +27,4 @@ gunicorn
 pytest
 pytest-cov
 flake8
+https://github.com/kabirkhan/ckg_models/releases/download/0.1.1/ner_azure-0.1.0.tar.gz

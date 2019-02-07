@@ -1,5 +1,6 @@
 import os
 import sys
+sys.path.insert(0, '/usr')
 
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin

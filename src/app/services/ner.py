@@ -8,9 +8,9 @@ from src.app.exceptions import DocumentParseError
 class CloudServiceExtractor:
     def __init__(self, blob_service, search_client):
 
+        self.search_client = search_client
         # print("Downloading NER model...", end='')
         # self.blob_service = blob_service
-        self.search_client = search_client
 
         # for blob in blob_service.list_blobs('ner'):
         #     path = f'src/app/services/models/{blob.name}'   
@@ -19,7 +19,7 @@ class CloudServiceExtractor:
         # print('Done')
 
         print("Loading NER model...", end='')
-        self.nlp = spacy.load('src/app/services/models/ner_azure_v0')
+        self.nlp = spacy.load('en_core_web_lg')
         print("Done")
 
         self.service_cache = {}
