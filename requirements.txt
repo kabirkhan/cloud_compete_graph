@@ -18,14 +18,12 @@ spacy==2.0.18
 fuzzywuzzy==0.17.0
 python-levenshtein==0.12.0
 gremlinpython==3.2.7
-starlette
-starlette-apispec==1.0.0b1
-marshmallow==3.0.0rc2
-apistar
-requests
-uvicorn
-gunicorn
+fastapi
+
+# Test
 pytest
 pytest-cov
 flake8
-https://github.com/kabirkhan/ckg_models/releases/download/0.1.1/ner_azure-0.1.0.tar.gz
+
+# Models
+https://github.com/kabirkhan/ckg_models/releases/download/0.1.2/en_ner_azure-0.1.0.tar.gz
