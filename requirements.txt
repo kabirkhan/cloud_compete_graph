@@ -21,6 +21,7 @@ gremlinpython==3.2.7
 starlette
 starlette-apispec==1.0.0b1
 marshmallow==3.0.0rc2
+apistar
 requests
 uvicorn
 gunicorn

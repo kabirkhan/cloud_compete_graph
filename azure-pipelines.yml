@@ -10,7 +10,7 @@ variables:
   buildConfiguration: Release
   acr_user_id: ccg
   acr_name: ccg
-  aks_cluster_resource_group: cloud_compete_concept_graph
+  aks_cluster_resource_group: cloud_compete_graph_database
   aks_cluster_name: ccg
 
 steps:

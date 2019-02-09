@@ -4,7 +4,9 @@ sys.path.insert(0, '/usr')
 
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
-
+from azure.storage.blob import BlockBlobService
+import click
+from dotenv import load_dotenv, find_dotenv
 from marshmallow import Schema, fields, ValidationError
 
 from starlette.applications import Starlette
@@ -15,8 +17,6 @@ from starlette.schemas import OpenAPIResponse
 from starlette_apispec import APISpecSchemaGenerator
 import uvicorn
 import yaml
-from dotenv import load_dotenv, find_dotenv
-from azure.storage.blob import BlockBlobService
 
 from src.app.exceptions import DocumentParseError
 from src.app.schemas import DocumentSchema, DocumentsSchema, DocumentServicesSchema, ServicesResponseSchema, MatchSchema, ServiceSchema
@@ -59,7 +59,7 @@ async def homepage(request: Request):
           application/json:
             schema: DocumentsSchema
     responses:
-      200:
+      '200':
         description: Cloud services extracted from text
         content:
           application/json:
@@ -122,10 +122,12 @@ def schema(request):
     return OpenAPIResponse(app.schema)
 
 
-if __name__ == '__main__':
-    assert sys.argv[-1] in ("run", "schema"), "Usage: example.py [run|schema]"
+@click.command()
+@click.argument('output_filepath', type=click.Path())
+def dump_schema(output_filepath):
+    with open(output_filepath, 'w'):
+        output_filepath.write(yaml.dump(app.schema, default_flow_style=False))
 
-    if sys.argv[-1] == "run":
-        uvicorn.run(app, host='0.0.0.0', port=8000, debug=True)
-    elif sys.argv[-1] == "schema":
-        print(yaml.dump(app.schema, default_flow_style=False))
+
+if __name__ == '__main__':
+    dump_schema()
