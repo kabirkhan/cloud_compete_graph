@@ -12,7 +12,7 @@ from src.data.search.azure_search import AzureSearchClient
 
 load_dotenv(find_dotenv())
 
-search_account_name = os.environ.get('ACCOUNT_NAME')
+search_account_name = os.environ.get('AZURE_ACCOUNT_NAME')
 search_api_key = os.environ.get('AZURE_SEARCH_KEY')
 
 search_client = AzureSearchClient(search_account_name, search_api_key)
