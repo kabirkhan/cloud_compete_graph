@@ -3,6 +3,7 @@ from collections import defaultdict
 import spacy
 
 from src.app.exceptions import DocumentParseError
+from src.app.labels import AWS_SERVICE, AWS_SERVICE, GCP_SERVICE
 
 
 class CloudServiceExtractor:
@@ -41,6 +42,6 @@ class CloudServiceExtractor:
             raise DocumentParseError
 
         for ent in doc.ents:
-            if ent.label_ in ('AZURE_SERVICE',):
+            if ent.label_ in set(AWS_SERVICE, AWS_SERVICE, GCP_SERVICE):
                 service = self.resolve_service_name(ent.text)
                 yield ent, service

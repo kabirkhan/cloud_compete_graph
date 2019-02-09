@@ -1,6 +1,0 @@
-schema:
-    path: api_schema.yaml
-    format: openapi
-docs:
-    output_dir: api_docs
-    theme: apistar
