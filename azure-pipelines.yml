@@ -16,11 +16,11 @@ steps:
     echo $(AZ_SP_ID) 
     echo $AZ_SP_PASSORD
     echo $(AZ_SP_TENANT_ID)
-    az login --service-principal --username $(AZ_SP_ID) --password $AZ_SP_PASSORD --tenant $(AZ_SP_TENANT_ID)
+    az login --service-principal --username $(AZ_SP_ID) --password $AZ_SP_PASSWORD --tenant $(AZ_SP_TENANT_ID)
     az aks install-cli
     az aks get-credentials -g $(RESOURCE_GROUP) -n $(ACCOUNT_NAME)
   env:
-    AZ_SP_PASSORD: $(AZ_SP_PASSORD)
+    AZ_SP_PASSWORD: $(AZ_SP_PASSWORD)
   displayName: Login with Azure CLI
 - script: |
     curl https://s3.amazonaws.com/datawire-static-files/forge/$(curl https://s3.amazonaws.com/datawire-static-files/forge/latest.url)/forge -o /tmp/forge
