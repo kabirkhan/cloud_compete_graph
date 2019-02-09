@@ -1,0 +1,14 @@
+{
+	"documents": [
+		{
+			"id": "1",
+			"text": "Azure functions just announced support for python functions on the v2 runtime.",
+			"language": "en"
+		},
+		{
+			"id": "2",
+			"text": "Azure functions just announced support for python functions on the v2 runtime, broadening their Compute offerings on top of the recent Azure Kuberenetes Service.",
+			"language": "en"
+		}
+	]
+}
