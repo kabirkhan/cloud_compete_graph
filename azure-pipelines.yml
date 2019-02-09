@@ -42,6 +42,7 @@ steps:
   displayName: Write forge configuration
 - script: |
     python3 write_env.py
+    cat .env
   env:
     AZURE_ACCOUNT_NAME: $(ACCOUNT_NAME)
     AZURE_SEARCH_KEY: $(AZURE_SEARCH_KEY)

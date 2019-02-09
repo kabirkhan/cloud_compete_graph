@@ -7,7 +7,7 @@ COPY ./requirements.txt ./requirements.txt
 
 RUN pip install -r requirements.txt
 
-
+COPY .env .env
 COPY ./src ./src
 
 COPY start.sh .
