@@ -14,20 +14,28 @@ load_dotenv(find_dotenv())
 
 search_account_name = os.environ.get('AZURE_ACCOUNT_NAME')
 search_api_key = os.environ.get('AZURE_SEARCH_KEY')
+prefix = os.environ.get('CLUSTER_ROUTE_PREFIX')
+
+if not prefix:
+    prefix = ''
+prefix = prefix.rstrip('/')
+print('PREFIX: ', prefix)
 
 search_client = AzureSearchClient(search_account_name, search_api_key)
 cse = CloudServiceExtractor(search_client)
 
+
 app = FastAPI(
     title="Cloud Compete Graph NER",
     description="API for the Cloud Compete Graph Named Entity Recognition models",
-    version="0.1.0"
+    version="0.1.0",
+    openapi_url=f'{prefix}/openapi.json'
 )
 
 
 @app.get("/", include_in_schema=False)
 def root():
-    return RedirectResponse(url='/docs')
+    return RedirectResponse(url=f'{prefix}/docs')
 
 
 @app.post("/extract", response_model=DocumentsResponse, tags=['Named Entity Recognition'])

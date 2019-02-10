@@ -26,7 +26,10 @@ class CloudServiceExtractor:
         
         if res.status_code == 200:
             suggestion = res.json()['value'][0] if res.json()['value'] else name
-            search_res = self.search_client.search(suggestion['@search.text'])
+            if isinstance(suggestion, str):
+                search_res = self.search_client.search(name)
+            else:
+                search_res = self.search_client.search(suggestion['@search.text'])
             top_res = search_res.json()['value'][0]
             if top_res['@search.score'] > threshold:                
                 self.service_cache[name] = top_res

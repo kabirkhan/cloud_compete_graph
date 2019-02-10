@@ -52,3 +52,6 @@ spec:
         ports:
         - name: http-api
           containerPort: 8080
+        env:
+        - name: CLUSTER_ROUTE_PREFIX
+          value: {{build.profile.endpoint}}
