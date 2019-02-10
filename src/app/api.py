@@ -28,8 +28,7 @@ cse = CloudServiceExtractor(search_client)
 app = FastAPI(
     title="Cloud Compete Graph NER",
     description="API for the Cloud Compete Graph Named Entity Recognition models",
-    version="0.1.0",
-    openapi_url=f'{prefix}/openapi.json'
+    version="0.1.0"
 )
 
 
