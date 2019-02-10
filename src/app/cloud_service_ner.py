@@ -18,7 +18,10 @@ class CloudServiceExtractor:
         self.service_cache = {}
 
     def resolve_service_name(self, name, threshold=0.8):
-    
+        """
+        Resolve the name of the service from the 
+        NER model to the search index
+        """
         if name in self.service_cache:
             return self.service_cache[name]
         
@@ -39,6 +42,9 @@ class CloudServiceExtractor:
             return None
 
     def extract(self, text):
+        """
+        Extract Named entities
+        """
         try:
             doc = self.nlp(text)
         except ValueError:
