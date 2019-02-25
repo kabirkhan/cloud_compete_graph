@@ -1,6 +1,9 @@
 Cloud Compete Graph (CCG)
 ==============================
 
+API Docs for interacting with the graph and using extracting Cloud Service Named Entities from raw text
+https://kabirkhan.github.io/cloud_compete_graph/docs/
+
 CCG is a Concept Graph to the maps and analyzes the cloud compete landscape.
 
 Current Cloud Providers:
@@ -9,15 +12,8 @@ Current Cloud Providers:
 - [Google Cloud](https://cloud.google.com/)
 - More coming soon...
 
-<!-- API Docs for interacting with the graph
-http://ccg.cloudapp.azure.com/ccg/ -->
-
 
 ## Components
-
-All services are behind an Azure API Management instance.
-Take a look at the /swagger.json Open API spec in the root directory.
-I'm working on a site to manage subscriptions and docs better moving forward
 
 1. Azure Cosmos DB Graph Database
 This is the core of the project, the actual concept graph
@@ -32,8 +28,6 @@ Imagine you're reading an article about Azure's serverless cloud offerings.
 This model can extract Azure Functions, function app, function, etc in context and resolve that entity to the Azure Functions entity in the graph. From there you can get all the service metadata, a link to learn more and related services like AWS Lambda from Amazon Web Services
 
 Currently this model only supports Azure services. I'm working on expanding this functionality.
-
-- Azure NER Model: models/ner_azure_v0
 
 All NER models are trained using Prodigy and [Spacy](https://spacy.io) and can be loaded like any other spacy model
 
@@ -50,57 +44,5 @@ list(doc.ents)
 Info coming soon. For now use the points above to use the preconfigured service.
 I'll add instructions and better pipelines for building everything yourself.
 
-
-
-Project Organization
-------------
-
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
-
-
---------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
