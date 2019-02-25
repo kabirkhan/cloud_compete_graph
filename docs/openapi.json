@@ -20,6 +20,15 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/Documents"
+                            },
+                            "example": {
+                                "documents": [
+                                    {
+                                        "id": "1",
+                                        "text": "Create serverless logic with Azure Functions",
+                                        "language": "en"
+                                    }
+                                ]
                             }
                         }
                     }
