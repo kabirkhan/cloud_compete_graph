@@ -1,259 +1,180 @@
 {
-  "openapi": "3.0.2",
-  "info": {
-    "title": "Cloud Compete Graph NER",
-    "version": "0.1.0",
-    "description": "API for the Cloud Compete Graph Named Entity Recognition models"
-  },
-  "paths": {
-    "\/ccg\/extract": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application\/json": {
-                "schema": {
-                  "$ref": "#\/components\/schemas\/DocumentsResponse"
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Cloud Compete Graph NER",
+        "description": "API for the Cloud Compete Graph Named Entity Recognition models",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://cloudconceptgraph.azure-api.net/ner"
+    }],
+    "paths": {
+        "/extract": {
+            "post": {
+                "summary": "Extract cloud services from document text as Named Entities",
+                "description": "Extract cloud services from document text as Named Entities",
+                "operationId": "post-extract",
+                "requestBody": {
+                    "description": "List of documents",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Documents"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cloud services extracted from text",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServicesResponseSchema"
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application\/json": {
-                "schema": {
-                  "$ref": "#\/components\/schemas\/HTTPValidationError"
+        }
+    },
+    "components": {
+        "schemas": {
+            "DocumentSchema": {
+                "required": ["id", "language", "text"],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "language": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    }
                 }
-              }
+            },
+            "DocumentServices": {
+                "type": "array",
+                "items": {
+                    "required": ["cloudServices", "id"],
+                    "type": "object",
+                    "properties": {
+                        "cloudServices": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/Service"
+                            }
+                        },
+                        "id": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Documents": {
+                "required": ["documents"],
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentSchema"
+                        }
+                    }
+                }
+            },
+            "Match": {
+                "type": "array",
+                "items": {
+                    "required": ["end", "label", "start", "text"],
+                    "type": "object",
+                    "properties": {
+                        "end": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "label": {
+                            "type": "string"
+                        },
+                        "start": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "text": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Service": {
+                "type": "array",
+                "items": {
+                    "required": ["matches", "relatedServices", "serviceCategories", "serviceName", "serviceShortDescription", "serviceUri"],
+                    "type": "object",
+                    "properties": {
+                        "matches": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/Match"
+                            }
+                        },
+                        "relatedServices": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "serviceCategories": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "serviceName": {
+                            "type": "string"
+                        },
+                        "serviceShortDescription": {
+                            "type": "string"
+                        },
+                        "serviceUri": {
+                            "type": "string",
+                            "format": "url"
+                        }
+                    }
+                }
+            },
+            "ServicesResponseSchema": {
+                "required": ["documents"],
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentServices"
+                        }
+                    }
+                }
             }
-          }
         },
-        "tags": [
-          "Named Entity Recognition"
-        ],
-        "summary": "Extract Post",
-        "operationId": "extract_extract_post",
-        "requestBody": {
-          "content": {
-            "application\/json": {
-              "schema": {
-                "$ref": "#\/components\/schemas\/DocumentsRequest"
-              },
-              "example":{
-                "documents": [
-                  {
-                    "id": "1",
-                    "text": "Create serverless logic with Azure Functions",
-                    "language": "en"
-                  }
-                ]
-              } 
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "Ocp-Apim-Subscription-Key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
             }
-          },
-          "required": true
         }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "EntityMatch": {
-        "title": "EntityMatch",
-        "required": [
-          "label",
-          "text",
-          "start",
-          "end"
-        ],
-        "type": "object",
-        "properties": {
-          "label": {
-            "title": "Label",
-            "type": "string"
-          },
-          "text": {
-            "title": "Text",
-            "type": "string"
-          },
-          "start": {
-            "title": "Start",
-            "type": "integer"
-          },
-          "end": {
-            "title": "End",
-            "type": "integer"
-          }
-        }
-      },
-      "CloudServiceEntity": {
-        "title": "CloudServiceEntity",
-        "required": [
-          "matches",
-          "serviceId",
-          "serviceName",
-          "serviceShortDescription",
-          "serviceUri",
-          "serviceCategories",
-          "relatedServices"
-        ],
-        "type": "object",
-        "properties": {
-          "matches": {
-            "title": "Matches",
-            "type": "array",
-            "items": {
-              "$ref": "#\/components\/schemas\/EntityMatch"
-            }
-          },
-          "serviceId": {
-            "title": "Serviceid",
-            "type": "string"
-          },
-          "serviceName": {
-            "title": "Servicename",
-            "type": "string"
-          },
-          "serviceShortDescription": {
-            "title": "Serviceshortdescription",
-            "type": "string"
-          },
-          "serviceUri": {
-            "title": "Serviceuri",
-            "type": "string"
-          },
-          "serviceCategories": {
-            "title": "Servicecategories",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "relatedServices": {
-            "title": "Relatedservices",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "DocumentResponse": {
-        "title": "DocumentResponse",
-        "required": [
-          "id",
-          "cloudServices"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "cloudServices": {
-            "title": "Cloudservices",
-            "type": "array",
-            "items": {
-              "$ref": "#\/components\/schemas\/CloudServiceEntity"
-            }
-          }
-        }
-      },
-      "DocumentRequest": {
-        "title": "DocumentRequest",
-        "required": [
-          "id",
-          "text"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "text": {
-            "title": "Text",
-            "type": "string"
-          },
-          "language": {
-            "title": "Language",
-            "type": "string",
-            "default": "en"
-          }
-        }
-      },
-      "DocumentsRequest": {
-        "title": "DocumentsRequest",
-        "required": [
-          "documents"
-        ],
-        "type": "object",
-        "properties": {
-          "documents": {
-            "title": "Documents",
-            "type": "array",
-            "items": {
-              "$ref": "#\/components\/schemas\/DocumentRequest"
-            }
-          }
-        }
-      },
-      "DocumentsResponse": {
-        "title": "DocumentsResponse",
-        "required": [
-          "documents"
-        ],
-        "type": "object",
-        "properties": {
-          "documents": {
-            "title": "Documents",
-            "type": "array",
-            "items": {
-              "$ref": "#\/components\/schemas\/DocumentResponse"
-            }
-          }
-        }
-      },
-      "ValidationError": {
-        "title": "ValidationError",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "type": "object",
-        "properties": {
-          "loc": {
-            "title": "Location",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "msg": {
-            "title": "Message",
-            "type": "string"
-          },
-          "type": {
-            "title": "Error Type",
-            "type": "string"
-          }
-        }
-      },
-      "HTTPValidationError": {
-        "title": "HTTPValidationError",
-        "type": "object",
-        "properties": {
-          "detail": {
-            "title": "Detail",
-            "type": "array",
-            "items": {
-              "$ref": "#\/components\/schemas\/ValidationError"
-            }
-          }
-        }
-      }
-    }
-  }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }, {
+        "apiKeyQuery": []
+    }]
 }
