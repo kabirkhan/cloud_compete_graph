@@ -1,0 +1,173 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Cloud Compete Graph NER",
+        "description": "API for the Cloud Compete Graph Named Entity Recognition models",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://cloudconceptgraph.azure-api.net/ner"
+    }],
+    "paths": {
+        "/extract": {
+            "post": {
+                "summary": "Extract cloud services from document text as Named Entities",
+                "description": "Extract cloud services from document text as Named Entities",
+                "operationId": "post-extract",
+                "tags": ["Named Entity Recognition"],
+                "requestBody": {
+                    "description": "List of documents",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Documents"
+                            },
+                            "example": {
+                                "documents": [
+                                    {
+                                        "id": "1",
+                                        "text": "Create serverless logic with Azure Functions",
+                                        "language": "en"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cloud services extracted from text",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServicesResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DocumentSchema": {
+                "required": ["id", "language", "text"],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "language": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DocumentServices": {
+                "type": "array",
+                "items": {
+                    "required": ["cloudServices", "id"],
+                    "type": "object",
+                    "properties": {
+                        "cloudServices": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/Service"
+                            }
+                        },
+                        "id": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Documents": {
+                "required": ["documents"],
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentSchema"
+                        }
+                    }
+                }
+            },
+            "Match": {
+                "type": "array",
+                "items": {
+                    "required": ["end", "label", "start", "text"],
+                    "type": "object",
+                    "properties": {
+                        "end": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "label": {
+                            "type": "string"
+                        },
+                        "start": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "text": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Service": {
+                "type": "array",
+                "items": {
+                    "required": ["matches", "relatedServices", "serviceCategories", "serviceName", "serviceShortDescription", "serviceUri"],
+                    "type": "object",
+                    "properties": {
+                        "matches": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/Match"
+                            }
+                        },
+                        "relatedServices": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "serviceCategories": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "serviceName": {
+                            "type": "string"
+                        },
+                        "serviceShortDescription": {
+                            "type": "string"
+                        },
+                        "serviceUri": {
+                            "type": "string",
+                            "format": "url"
+                        }
+                    }
+                }
+            },
+            "ServicesResponseSchema": {
+                "required": ["documents"],
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentServices"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
