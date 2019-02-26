@@ -47,12 +47,12 @@ steps:
   displayName: Build image with forge
 - script: |
     DOCKER_IMAGE=$(docker images -q | sed 1q)
-    docker run -i "$DOCKER_IMAGE" /bin/bash -c "black /usr/src"
-  displayName: Run black lintint
+    docker run -i "$DOCKER_IMAGE" /bin/sh -c "black /usr/src"
+  displayName: Lint with black
   continueOnError: true
 - script: |
     DOCKER_IMAGE=$(docker images -q | sed 1q)
-    docker run -i -v junit:/usr/src "$DOCKER_IMAGE" /bin/bash -c "pytest src/app/tests --doctest-modules --junitxml=junit/test-results.xml --cov --cov-report=xml --cov-report=html"
+    docker run -i -v junit:/usr/src "$DOCKER_IMAGE" /bin/sh -c "pytest src/app/tests --doctest-modules --junitxml=junit/test-results.xml --cov --cov-report=xml --cov-report=html"
   displayName: Test with pytest
 - script: |
     forge --profile stable deploy

@@ -5,11 +5,12 @@ WORKDIR /usr
 
 RUN apk add build-base
 
-COPY ./requirements/api.txt ./requirements.txt
-RUN pip3 install -r requirements.txt
+ADD ./requirements .
+RUN pip3 install -r requirements/api.txt
+RUN pip3 install -r requirements/test.txt
 
 COPY .env .env
 COPY ./src ./src
 
 COPY start.sh .
-CMD ["bash", "start.sh"]
+CMD ["sh", "start.sh"]

@@ -19,10 +19,5 @@ gremlinpython==3.2.7
 uvicorn
 fastapi
 
-# Test
-pytest
-pytest-cov
-black
-
 # Models
-https://github.com/kabirkhan/ckg_models/releases/download/0.1.2/en_ner_azure-0.1.0.tar.gz
+https://github.com/kabirkhan/ckg_models/releases/download/0.3.0/en_ner_azure_lg-0.3.0.tar.gz

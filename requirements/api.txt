@@ -4,3 +4,4 @@ python-dotenv>=0.5.1
 requests
 spacy==2.0.18
 uvicorn
+https://github.com/kabirkhan/ckg_models/releases/download/0.3.0/en_ner_azure_lg-0.3.0.tar.gz
