@@ -9,6 +9,7 @@ azure-storage-blob
 azure-storage-file
 beautifulsoup4
 jupyterlab
+numpy
 pandas
 requests
 spacy==2.0.18
