@@ -11,8 +11,8 @@ class CloudServiceExtractor:
 
         self.search_client = search_client
 
-        print("Loading NER model...", end='')
-        self.nlp = spacy.load('en_ner_azure')
+        print("Loading NER model...", end="")
+        self.nlp = spacy.load("en_ner_azure")
         print("Done")
 
         self.service_cache = {}
@@ -24,17 +24,17 @@ class CloudServiceExtractor:
         """
         if name in self.service_cache:
             return self.service_cache[name]
-        
+
         res = self.search_client.suggest(name)
-        
+
         if res.status_code == 200:
-            suggestion = res.json()['value'][0] if res.json()['value'] else name
+            suggestion = res.json()["value"][0] if res.json()["value"] else name
             if isinstance(suggestion, str):
                 search_res = self.search_client.search(name)
             else:
-                search_res = self.search_client.search(suggestion['@search.text'])
-            top_res = search_res.json()['value'][0]
-            if top_res['@search.score'] > threshold:                
+                search_res = self.search_client.search(suggestion["@search.text"])
+            top_res = search_res.json()["value"][0]
+            if top_res["@search.score"] > threshold:
                 self.service_cache[name] = top_res
                 return self.service_cache[name]
         else:

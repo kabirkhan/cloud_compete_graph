@@ -48,8 +48,8 @@ steps:
   displayName: Build image with forge
 - script: |
     DOCKER_IMAGE=$(docker images -q | sed 1q)
-    docker run -i "$DOCKER_IMAGE" /bin/bash -c "flake8 ./app"
-  displayName: Run flake8
+    docker run -i "$DOCKER_IMAGE" /bin/bash -c "black /usr/src"
+  displayName: Run black lintint
   continueOnError: true
 - script: |
     DOCKER_IMAGE=$(docker images -q | sed 1q)
