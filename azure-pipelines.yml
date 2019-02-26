@@ -43,7 +43,7 @@ steps:
     AZURE_SEARCH_KEY: $(AZURE_SEARCH_KEY)
   displayName: Write Config
 - script: |
-    forge build
+    forge --profile stable build
   displayName: Build image with forge
 - script: |
     DOCKER_IMAGE=$(docker images -q | sed 1q)
