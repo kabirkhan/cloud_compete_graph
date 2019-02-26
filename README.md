@@ -9,9 +9,11 @@ Current Cloud Providers:
 - [Google Cloud](https://cloud.google.com/)
 - More coming soon...
 
-<!-- API Docs for interacting with the graph
-http://ccg.cloudapp.azure.com/ccg/ -->
+API Docs for Named Entity Recognition
+http://ccg.westus2.cloudapp.azure.com/ccg/
 
+Graph API
+https://cloudconceptgraph.azure-api.net
 
 ## Components
 

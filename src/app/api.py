@@ -19,7 +19,6 @@ prefix = os.environ.get('CLUSTER_ROUTE_PREFIX')
 if not prefix:
     prefix = ''
 prefix = prefix.rstrip('/')
-print('PREFIX: ', prefix)
 
 search_client = AzureSearchClient(search_account_name, search_api_key)
 cse = CloudServiceExtractor(search_client)
@@ -40,6 +39,17 @@ def root():
 
 @app.post("/extract", response_model=DocumentsResponse, tags=['Named Entity Recognition'])
 def extract(body: DocumentsRequest):
+    """
+    {
+        "documents": [
+            {
+                "id": "1",
+                "text": "Create serverless logic with Azure Functions",
+                "language": "en"
+            }
+        ]
+    }
+    """
     documents_res = []
     for doc in body.documents:
         cloud_services = {}

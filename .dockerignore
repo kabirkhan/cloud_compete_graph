@@ -1,5 +1,10 @@
+.forge
+.venv
+.vscode
+.pytest_cache
 data
 docs
+k8s
 notebooks
 references
 reports
@@ -7,6 +12,6 @@ models
 **/models
 src/app/services/models
 src/features
+src/prodigy
 src/ui
 src/visualization
-src/features

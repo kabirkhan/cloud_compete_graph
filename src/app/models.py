@@ -32,4 +32,3 @@ class DocumentResponse(BaseModel):
 
 class DocumentsResponse(BaseModel):
     documents: List[DocumentResponse]
-    
