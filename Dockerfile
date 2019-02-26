@@ -3,7 +3,7 @@ ENV PORT 8080
 EXPOSE ${PORT}
 WORKDIR /usr
 
-COPY ./requirements.txt ./requirements.txt
+COPY ./requirements/api.txt ./requirements.txt
 
 RUN pip3 install -r requirements.txt
 
