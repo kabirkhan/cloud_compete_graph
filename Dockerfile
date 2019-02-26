@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM python:3.7
 ENV PORT 8080
 EXPOSE ${PORT}
 WORKDIR /usr
