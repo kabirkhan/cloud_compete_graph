@@ -3,8 +3,9 @@ ENV PORT 8080
 EXPOSE ${PORT}
 WORKDIR /usr
 
-COPY ./requirements/api.txt ./requirements.txt
+RUN apk add build-base
 
+COPY ./requirements/api.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY .env .env
