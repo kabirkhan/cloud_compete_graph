@@ -82,7 +82,7 @@
                                 "$ref": "#/components/schemas/GremlinQueryRequest"
                             },
                             "example": {
-                                "text": "g.V('ad77902d-10f7-4d3e-971c-8b734a059076')"
+                                "query": "g.V('ad77902d-10f7-4d3e-971c-8b734a059076')"
                             }
                         }
                     }
@@ -412,10 +412,10 @@
                 }
             },
             "GremlinQueryRequest": {
-                "required": ["text"],
+                "required": ["query"],
                 "type": "object",
                 "properties": {
-                    "text": {
+                    "query": {
                         "type": "string"
                     }
                 }
