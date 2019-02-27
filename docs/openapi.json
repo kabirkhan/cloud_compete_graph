@@ -58,7 +58,9 @@
                     "in": "path",
                     "description": "Id of a cloud service",
                     "required": true,
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }],
                 "responses": {
                     "200": {
@@ -76,7 +78,7 @@
                     "name": "body",
                     "in": "body",
                     "schema": {
-                        "$ref": "#/definitions/Body"
+                        "$ref": "#/definitions/GremlinQueryRequest"
                     }
                 }],
                 "consumes": ["application/json"],
@@ -119,79 +121,115 @@
                 "parameters": [{
                     "name": "search",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "$skip",
                     "in": "query",
-                    "type": "integer"
+                    "schema": {
+                        "type": "integer"
+                    }
                 }, {
                     "name": "$top",
                     "in": "query",
-                    "type": "integer"
+                    "schema": {
+                        "type": "integer"
+                    }
                 }, {
                     "name": "$filter",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "integer"
+                    }
                 }, {
                     "name": "facet",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "$select",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "$count",
                     "in": "query",
-                    "type": "string",
-                    "enum": ["true", "false"]
+                    "schema": {
+                        "type": "string",
+                        "enum": ["true", "false"]
+                    }
                 }, {
                     "name": "highlight",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "highlightPreTag",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "highlightPostTag",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "api-version",
                     "in": "query",
-                    "type": "string",
-                    "enum": ["2017-11-11"]
+                    "schema": {
+                        "type": "string",
+                        "enum": ["2017-11-11"]
+                    }
                 }, {
                     "name": "searhFields",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "searchMode",
                     "in": "query",
-                    "type": "string",
-                    "enum": ["any", "all"]
+                    "schema": {
+                        "type": "string",
+                        "enum": ["full", "simple"]
+                    }
                 }, {
                     "name": "queryType",
                     "in": "query",
-                    "type": "string",
-                    "enum": ["full", "simple"]
+                    "schema": {
+                        "type": "string",
+                        "enum": ["full", "simple"]
+                    }
                 }, {
                     "name": "$orderby",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "scoringProfile",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "scoringParameter",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "minimumCoverage",
                     "in": "query",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }],
                 "responses": {
                     "200": {
@@ -360,6 +398,15 @@
                         "items": {
                             "$ref": "#/components/schemas/DocumentServices"
                         }
+                    }
+                }
+            },
+            "GremlinQueryRequest": {
+                "required": ["text"],
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string"
                     }
                 }
             }
