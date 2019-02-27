@@ -74,14 +74,19 @@
                 "description": "POST Gremlin Query",
                 "operationId": "post-gremlinqueryhttptrigger",
                 "summary": "POST Gremlin Query",
-                "parameters": [{
-                    "name": "body",
-                    "in": "body",
-                    "schema": {
-                        "$ref": "#/definitions/GremlinQueryRequest"
+                "requestBody": {
+                    "description": "Gremlin Query",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GremlinQueryRequest"
+                            },
+                            "example": {
+                                "text": "g.V('ad77902d-10f7-4d3e-971c-8b734a059076')"
+                            }
+                        }
                     }
-                }],
-                "consumes": ["application/json"],
+                },
                 "responses": {
                     "200": {
                         "description": "Returns the JSON result of your Gremlin query."
@@ -235,8 +240,7 @@
                     "200": {
                         "description": "Returns search results."
                     }
-                },
-                "produces": ["application/json"]
+                }
             }
         },
         "/services": {
@@ -248,12 +252,16 @@
                     "name": "cloud_id",
                     "in": "query",
                     "description": "Cloud Provider id",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }, {
                     "name": "category_id",
                     "in": "query",
                     "description": "Cloud Provider Category id",
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }],
                 "responses": {
                     "200": {
@@ -271,7 +279,9 @@
                     "name": "search",
                     "in": "query",
                     "required": true,
-                    "type": "string"
+                    "schema": {
+                        "type": "string"
+                    }
                 }],
                 "responses": {
                     "200": {
