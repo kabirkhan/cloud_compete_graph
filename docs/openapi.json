@@ -67,6 +67,14 @@
                 "operationId": "get-categorieshttptrigger",
                 "summary": "GET Categories",
                 "tags": ["API"],
+                "parameters": [{
+                    "name": "cloud_id",
+                    "in": "query",
+                    "description": "Cloud Provider id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
                 "responses": {
                     "200": {
                         "description": "Returns all categories."
