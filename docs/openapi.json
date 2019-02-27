@@ -48,52 +48,6 @@
                 }
             }
         },
-        "/services/{service_id}": {
-            "get": {
-                "description": "GET Services",
-                "operationId": "get-serviceshttptrigger",
-                "summary": "GET Service By Id",
-                "parameters": [{
-                    "name": "service_id",
-                    "in": "path",
-                    "description": "Id of a cloud service",
-                    "required": true,
-                    "schema": {
-                        "type": "string"
-                    }
-                }],
-                "responses": {
-                    "200": {
-                        "description": "Returns the service metadata."
-                    }
-                }
-            }
-        },
-        "/gremlin": {
-            "post": {
-                "description": "POST Gremlin Query",
-                "operationId": "post-gremlinqueryhttptrigger",
-                "summary": "POST Gremlin Query",
-                "requestBody": {
-                    "description": "Gremlin Query",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/GremlinQueryRequest"
-                            },
-                            "example": {
-                                "query": "g.V('ad77902d-10f7-4d3e-971c-8b734a059076')"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Returns the JSON result of your Gremlin query."
-                    }
-                }
-            }
-        },
         "/clouds": {
             "get": {
                 "description": "Get all cloud providers",
@@ -114,6 +68,54 @@
                 "responses": {
                     "200": {
                         "description": "Returns all categories."
+                    }
+                }
+            }
+        },
+        "/services": {
+            "get": {
+                "description": "GET Services by cloud_id or category_id",
+                "operationId": "5c5423127dafdb8c02157394",
+                "summary": "GET Services",
+                "parameters": [{
+                    "name": "cloud_id",
+                    "in": "query",
+                    "description": "Cloud Provider id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "category_id",
+                    "in": "query",
+                    "description": "Cloud Provider Category id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Returns the service metadata."
+                    }
+                }
+            }
+        },
+        "/services/{service_id}": {
+            "get": {
+                "description": "GET Services",
+                "operationId": "get-serviceshttptrigger",
+                "summary": "GET Service By Id",
+                "parameters": [{
+                    "name": "service_id",
+                    "in": "path",
+                    "description": "Id of a cloud service",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Returns the service metadata."
                     }
                 }
             }
@@ -243,33 +245,6 @@
                 }
             }
         },
-        "/services": {
-            "get": {
-                "description": "GET Services by cloud_id or category_id",
-                "operationId": "5c5423127dafdb8c02157394",
-                "summary": "GET Services",
-                "parameters": [{
-                    "name": "cloud_id",
-                    "in": "query",
-                    "description": "Cloud Provider id",
-                    "schema": {
-                        "type": "string"
-                    }
-                }, {
-                    "name": "category_id",
-                    "in": "query",
-                    "description": "Cloud Provider Category id",
-                    "schema": {
-                        "type": "string"
-                    }
-                }],
-                "responses": {
-                    "200": {
-                        "description": "Returns the service metadata."
-                    }
-                }
-            }
-        },
         "/suggest": {
             "get": {
                 "description": "Suggest search terms based on a partial search query that you can use for the endpoint",
@@ -287,8 +262,32 @@
                     "200": {
                         "description": "Returns search term suggestions."
                     }
+                }
+            }
+        },
+        "/gremlin": {
+            "post": {
+                "description": "POST Gremlin Query",
+                "operationId": "post-gremlinqueryhttptrigger",
+                "summary": "POST Gremlin Query",
+                "requestBody": {
+                    "description": "Gremlin Query",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GremlinQueryRequest"
+                            },
+                            "example": {
+                                "query": "g.V('ad77902d-10f7-4d3e-971c-8b734a059076')"
+                            }
+                        }
+                    }
                 },
-                "produces": ["application/json"]
+                "responses": {
+                    "200": {
+                        "description": "Returns the JSON result of your Gremlin query."
+                    }
+                }
             }
         }
     },
