@@ -12,7 +12,7 @@ class CloudServiceExtractor:
         self.search_client = search_client
 
         print("Loading NER model...", end="")
-        self.nlp = spacy.load("en_ner_azure")
+        self.nlp = spacy.load("en_ner_azure_lg")
         print("Done")
 
         self.service_cache = {}
