@@ -201,27 +201,6 @@
                 "produces": ["application/json"]
             }
         },
-        "/extract": {
-            "post": {
-                "description": "Named Entity Recognition and Linking of Cloud Services from unstructured text.",
-                "operationId": "post-entity-linking",
-                "summary": "POST Entity Linking",
-                "parameters": [{
-                    "name": "body",
-                    "in": "body",
-                    "schema": {
-                        "$ref": "#/definitions/Body"
-                    },
-                    "description": "Unstructured Text"
-                }],
-                "consumes": ["application/json"],
-                "responses": {
-                    "200": {
-                        "description": "Returns cloud services recognized in text."
-                    }
-                }
-            }
-        },
         "/services": {
             "get": {
                 "description": "GET Services by cloud_id or category_id",
