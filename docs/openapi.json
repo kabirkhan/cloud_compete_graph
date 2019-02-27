@@ -53,6 +53,7 @@
                 "description": "Get all cloud providers",
                 "operationId": "get-cloudshttptrigger",
                 "summary": "GET Clouds",
+                "tags": ["API"],
                 "responses": {
                     "200": {
                         "description": "Returns all cloud providers."
@@ -65,6 +66,7 @@
                 "description": "Get all categories.",
                 "operationId": "get-categorieshttptrigger",
                 "summary": "GET Categories",
+                "tags": ["API"],
                 "responses": {
                     "200": {
                         "description": "Returns all categories."
@@ -77,6 +79,7 @@
                 "description": "GET Services by cloud_id or category_id",
                 "operationId": "5c5423127dafdb8c02157394",
                 "summary": "GET Services",
+                "tags": ["API"],
                 "parameters": [{
                     "name": "cloud_id",
                     "in": "query",
@@ -104,6 +107,7 @@
                 "description": "GET Services",
                 "operationId": "get-serviceshttptrigger",
                 "summary": "GET Service By Id",
+                "tags": ["API"],
                 "parameters": [{
                     "name": "service_id",
                     "in": "path",
@@ -125,6 +129,7 @@
                 "description": "Gets cloud services from a search query. This api allows a pass through to Azure Search, for query information see the Azure Search docs: https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents",
                 "operationId": "get-services-search",
                 "summary": "Search",
+                "tags": ["Search"],
                 "parameters": [{
                     "name": "search",
                     "in": "query",
@@ -250,6 +255,7 @@
                 "description": "Suggest search terms based on a partial search query that you can use for the endpoint",
                 "operationId": "search-suggestions",
                 "summary": "Search Suggestions",
+                "tags": ["Search"],
                 "parameters": [{
                     "name": "search",
                     "in": "query",
@@ -270,6 +276,7 @@
                 "description": "POST Gremlin Query",
                 "operationId": "post-gremlinqueryhttptrigger",
                 "summary": "POST Gremlin Query",
+                "tags": ["Query"],
                 "requestBody": {
                     "description": "Gremlin Query",
                     "content": {
