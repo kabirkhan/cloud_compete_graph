@@ -160,7 +160,7 @@
                     "name": "$filter",
                     "in": "query",
                     "schema": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 }, {
                     "name": "facet",
