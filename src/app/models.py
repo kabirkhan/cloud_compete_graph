@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Schema
 
 
@@ -17,6 +17,8 @@ class EntityMatch(BaseModel):
     text: str
     start: int
     end: int
+    relation: Optional[str] = None
+    rootVerb: Optional[str] = None
 
 
 class CloudServiceEntity(BaseModel):
@@ -24,7 +26,10 @@ class CloudServiceEntity(BaseModel):
     serviceId: str
     serviceName: str
     serviceShortDescription: str
+    serviceLongDescription: str
     serviceUri: str
+    serviceIconUri: str
+    serviceCloud: str
     serviceCategories: List[str]
     relatedServices: List[str]
 

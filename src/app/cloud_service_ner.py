@@ -1,4 +1,5 @@
 import os
+from typing import List
 from collections import defaultdict
 import spacy
 
@@ -41,16 +42,41 @@ class CloudServiceExtractor:
             print(res.text)
             return None
 
-    def extract(self, text):
+    def extract(self, text, ent_labels=[AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE]):
         """
-        Extract Named entities
+        Extract Named Entity Cloud services and relationships in text
         """
         try:
             doc = self.nlp(text)
+            # relations, root_verb = extract_relations_and_root_verb(doc, service_labels)
         except ValueError:
             raise DocumentParseError
 
-        for ent in doc.ents:
-            if ent.label_ in [AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE]:
-                service = self.resolve_service_name(ent.text)
-                yield ent, service
+        spans = list(doc.ents) + list(doc.noun_chunks)
+        for span in spans:
+            span.merge()
+
+        
+        for ent in filter(lambda w: w.ent_type_ in ent_labels, doc):
+            service = self.resolve_service_name(ent.text)
+            if service:
+                relation = None
+                root_verb = None
+                
+                if ent.dep_ in ('attr', 'dobj'):
+                    subject = [w for w in ent.head.lefts if w.dep_ == 'nsubj']
+                    if subject:
+                        subject = subject[0]
+                        relation = subject
+                        
+                elif ent.dep_ == 'pobj' and ent.head.dep_ == 'prep':
+                    relation = ent.head.head
+                    cur = relation
+                    while cur.head:
+                        if cur.pos_ == 'VERB':
+                            root_verb = cur
+                            break
+                        else:
+                            cur = cur.head
+                
+                yield doc[ent.i:ent.i+1], service, relation, root_verb

@@ -55,25 +55,32 @@ def extract(body: DocumentsRequest):
     documents_res = []
     for doc in body.documents:
         cloud_services = {}
-        for ent, service in cse.extract(doc.text):
+        for ent, service, relation, root_verb in cse.extract(doc.text):
             if service["id"] not in cloud_services:
+                print(service)
                 cloud_services[service["id"]] = {
                     "serviceId": service["id"],
                     "serviceName": service["name"],
                     "serviceShortDescription": service["shortDescription"],
+                    "serviceLongDescription": service["longDescription"],
                     "serviceUri": service["uri"],
+                    "serviceIconUri": service["iconUri"],
+                    "serviceCloud": service["cloud"],
                     "serviceCategories": service["categories"],
                     "relatedServices": service["relatedServices"],
                     "matches": [],
                 }
-            cloud_services[service["id"]]["matches"].append(
-                {
-                    "text": ent.text,
-                    "label": ent.label_,
-                    "start": ent.start_char,
-                    "end": ent.end_char,
-                }
-            )
+            match = {
+                "text": ent.text,
+                "label": ent.label_,
+                "start": ent.start_char,
+                "end": ent.end_char
+            }
+            if relation:
+                match['relation'] = relation.text
+            if root_verb:
+                match['rootVerb'] = root_verb.lemma_
+            cloud_services[service["id"]]["matches"].append(match)
 
         documents_res.append(
             {"id": doc.id, "cloudServices": list(cloud_services.values())}
