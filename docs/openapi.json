@@ -6,10 +6,10 @@
         "version": "1.0"
     },
     "servers": [{
-        "url": "https://cloudconceptgraph.azure-api.net/ner"
+        "url": "https://cloudconceptgraph.azure-api.net"
     }],
     "paths": {
-        "/extract": {
+        "/ner/extract": {
             "post": {
                 "summary": "Extract cloud services from document text as Named Entities",
                 "description": "Extract cloud services from document text as Named Entities",
@@ -44,6 +44,263 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/clouds": {
+            "get": {
+                "description": "Get all cloud providers",
+                "operationId": "get-cloudshttptrigger",
+                "summary": "GET Clouds",
+                "tags": ["API"],
+                "responses": {
+                    "200": {
+                        "description": "Returns all cloud providers."
+                    }
+                }
+            }
+        },
+        "/categories": {
+            "get": {
+                "description": "Get all categories.",
+                "operationId": "get-categorieshttptrigger",
+                "summary": "GET Categories",
+                "tags": ["API"],
+                "parameters": [{
+                    "name": "cloud_id",
+                    "in": "query",
+                    "description": "Cloud Provider id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Returns all categories."
+                    }
+                }
+            }
+        },
+        "/services": {
+            "get": {
+                "description": "GET Services by cloud_id or category_id",
+                "operationId": "5c5423127dafdb8c02157394",
+                "summary": "GET Services",
+                "tags": ["API"],
+                "parameters": [{
+                    "name": "cloud_id",
+                    "in": "query",
+                    "description": "Cloud Provider id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "category_id",
+                    "in": "query",
+                    "description": "Cloud Provider Category id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Returns the service metadata."
+                    }
+                }
+            }
+        },
+        "/services/{service_id}": {
+            "get": {
+                "description": "GET Services",
+                "operationId": "get-serviceshttptrigger",
+                "summary": "GET Service By Id",
+                "tags": ["API"],
+                "parameters": [{
+                    "name": "service_id",
+                    "in": "path",
+                    "description": "Id of a cloud service",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Returns the service metadata."
+                    }
+                }
+            }
+        },
+        "/search": {
+            "get": {
+                "description": "Gets cloud services from a search query. This api allows a pass through to Azure Search, for query information see the Azure Search docs: https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents",
+                "operationId": "get-services-search",
+                "summary": "Search",
+                "tags": ["Search"],
+                "parameters": [{
+                    "name": "search",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "$skip",
+                    "in": "query",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }, {
+                    "name": "$top",
+                    "in": "query",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }, {
+                    "name": "$filter",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "facet",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "$select",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "$count",
+                    "in": "query",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["true", "false"]
+                    }
+                }, {
+                    "name": "highlight",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "highlightPreTag",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "highlightPostTag",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "api-version",
+                    "in": "query",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["2017-11-11"]
+                    }
+                }, {
+                    "name": "searhFields",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "searchMode",
+                    "in": "query",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["full", "simple"]
+                    }
+                }, {
+                    "name": "queryType",
+                    "in": "query",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["full", "simple"]
+                    }
+                }, {
+                    "name": "$orderby",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "scoringProfile",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "scoringParameter",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }, {
+                    "name": "minimumCoverage",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Returns search results."
+                    }
+                }
+            }
+        },
+        "/suggest": {
+            "get": {
+                "description": "Suggest search terms based on a partial search query that you can use for the endpoint",
+                "operationId": "search-suggestions",
+                "summary": "Search Suggestions",
+                "tags": ["Search"],
+                "parameters": [{
+                    "name": "search",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Returns search term suggestions."
+                    }
+                }
+            }
+        },
+        "/gremlin": {
+            "post": {
+                "description": "POST Gremlin Query",
+                "operationId": "post-gremlinqueryhttptrigger",
+                "summary": "POST Gremlin Query",
+                "tags": ["Query"],
+                "requestBody": {
+                    "description": "Gremlin Query",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GremlinQueryRequest"
+                            },
+                            "example": {
+                                "query": "g.V('ad77902d-10f7-4d3e-971c-8b734a059076')"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns the JSON result of your Gremlin query."
                     }
                 }
             }
@@ -165,6 +422,15 @@
                         "items": {
                             "$ref": "#/components/schemas/DocumentServices"
                         }
+                    }
+                }
+            },
+            "GremlinQueryRequest": {
+                "required": ["query"],
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string"
                     }
                 }
             }
