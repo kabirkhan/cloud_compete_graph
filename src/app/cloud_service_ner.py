@@ -56,27 +56,26 @@ class CloudServiceExtractor:
         for span in spans:
             span.merge()
 
-        
         for ent in filter(lambda w: w.ent_type_ in ent_labels, doc):
             service = self.resolve_service_name(ent.text)
             if service:
                 relation = None
                 root_verb = None
-                
-                if ent.dep_ in ('attr', 'dobj'):
-                    subject = [w for w in ent.head.lefts if w.dep_ == 'nsubj']
+
+                if ent.dep_ in ("attr", "dobj"):
+                    subject = [w for w in ent.head.lefts if w.dep_ == "nsubj"]
                     if subject:
                         subject = subject[0]
                         relation = subject
-                        
-                elif ent.dep_ == 'pobj' and ent.head.dep_ == 'prep':
+
+                elif ent.dep_ == "pobj" and ent.head.dep_ == "prep":
                     relation = ent.head.head
                     cur = relation
                     while cur.head:
-                        if cur.pos_ == 'VERB':
+                        if cur.pos_ == "VERB":
                             root_verb = cur
                             break
                         else:
                             cur = cur.head
-                
-                yield doc[ent.i:ent.i+1], service, relation, root_verb
+
+                yield doc[ent.i : ent.i + 1], service, relation, root_verb

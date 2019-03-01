@@ -74,12 +74,12 @@ def extract(body: DocumentsRequest):
                 "text": ent.text,
                 "label": ent.label_,
                 "start": ent.start_char,
-                "end": ent.end_char
+                "end": ent.end_char,
             }
             if relation:
-                match['relation'] = relation.text
+                match["relation"] = relation.text
             if root_verb:
-                match['rootVerb'] = root_verb.lemma_
+                match["rootVerb"] = root_verb.lemma_
             cloud_services[service["id"]]["matches"].append(match)
 
         documents_res.append(

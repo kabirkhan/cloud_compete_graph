@@ -19,12 +19,11 @@ def test_api_success():
     assert response.status_code == 200
     data = response.json()
     assert "documents" in data
-    for doc in data['documents']:
-        assert 'id' in doc
-        assert 'cloudServices' in doc
-        for s in doc['cloudServices']:
-            for k in ['serviceName', 'serviceShortDescription', 'serviceUri']:        
+    for doc in data["documents"]:
+        assert "id" in doc
+        assert "cloudServices" in doc
+        for s in doc["cloudServices"]:
+            for k in ["serviceName", "serviceShortDescription", "serviceUri"]:
                 assert isinstance(s[k], str)
-            for k in ['serviceCategories', 'relatedServices', 'matches']:
+            for k in ["serviceCategories", "relatedServices", "matches"]:
                 assert isinstance(s[k], list)
-    
