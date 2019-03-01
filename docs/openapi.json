@@ -372,6 +372,12 @@
                         },
                         "text": {
                             "type": "string"
+                        },
+                        "relation": {
+                            "type": "string"
+                        },
+                        "rootVerb": {
+                            "type": "string"
                         }
                     }
                 }
@@ -406,9 +412,19 @@
                         "serviceShortDescription": {
                             "type": "string"
                         },
+                        "serviceLongDescription": {
+                            "type": "string"
+                        },
                         "serviceUri": {
                             "type": "string",
                             "format": "url"
+                        },
+                        "serviceIconUri": {
+                            "type": "string",
+                            "format": "url"
+                        },
+                        "serviceCloud": {
+                            "type": "string"
                         }
                     }
                 }
