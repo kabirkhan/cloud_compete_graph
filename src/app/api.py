@@ -1,4 +1,5 @@
 import os
+import multiprocessing as mp
 
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI
@@ -6,7 +7,7 @@ from starlette.responses import RedirectResponse
 
 from src.app.exceptions import DocumentParseError
 from src.app.cloud_service_ner import CloudServiceExtractor
-from src.app.models import DocumentsRequest, DocumentsResponse
+from src.app.models import DocumentRequest, DocumentsRequest, DocumentsResponse
 from src.data.search.azure_search import AzureSearchClient
 
 
@@ -27,9 +28,42 @@ cse = CloudServiceExtractor(search_client)
 app = FastAPI(
     title="Cloud Compete Graph NER",
     description="API for the Cloud Compete Graph Named Entity Recognition models",
-    version="0.1.0",
+    version="1.0.0",
     openapi_prefix=prefix,
 )
+
+
+def extract_for_doc(doc: DocumentRequest):
+    cloud_services = {}
+    for ent, service, relation, root_verb in cse.extract(doc.text):
+        if service["id"] not in cloud_services:
+            cloud_services[service["id"]] = {
+                "serviceId": service["id"],
+                "serviceName": service["name"],
+                "serviceShortDescription": service["shortDescription"],
+                "serviceLongDescription": service["longDescription"],
+                "serviceUri": service["uri"],
+                "serviceIconUri": service["iconUri"],
+                "serviceCloud": service["cloud"],
+                "serviceCategories": service["categories"],
+                "relatedServices": service["relatedServices"],
+                "matches": [],
+            }
+        match = {
+            "text": ent.text,
+            "label": ent.label_,
+            "start": ent.start_char,
+            "end": ent.end_char,
+        }
+        if relation:
+            match["relation"] = relation.text
+        if root_verb:
+            match["rootVerb"] = root_verb.lemma_
+        cloud_services[service["id"]]["matches"].append(match)
+    return {
+        'id': doc.id,
+        'cloudServices': list(cloud_services.values())
+    }
 
 
 @app.get("/", include_in_schema=False)
@@ -42,6 +76,7 @@ def root():
 )
 def extract(body: DocumentsRequest):
     """
+    Example:
     {
         "documents": [
             {
@@ -52,37 +87,6 @@ def extract(body: DocumentsRequest):
         ]
     }
     """
-    documents_res = []
-    for doc in body.documents:
-        cloud_services = {}
-        for ent, service, relation, root_verb in cse.extract(doc.text):
-            if service["id"] not in cloud_services:
-                print(service)
-                cloud_services[service["id"]] = {
-                    "serviceId": service["id"],
-                    "serviceName": service["name"],
-                    "serviceShortDescription": service["shortDescription"],
-                    "serviceLongDescription": service["longDescription"],
-                    "serviceUri": service["uri"],
-                    "serviceIconUri": service["iconUri"],
-                    "serviceCloud": service["cloud"],
-                    "serviceCategories": service["categories"],
-                    "relatedServices": service["relatedServices"],
-                    "matches": [],
-                }
-            match = {
-                "text": ent.text,
-                "label": ent.label_,
-                "start": ent.start_char,
-                "end": ent.end_char,
-            }
-            if relation:
-                match["relation"] = relation.text
-            if root_verb:
-                match["rootVerb"] = root_verb.lemma_
-            cloud_services[service["id"]]["matches"].append(match)
 
-        documents_res.append(
-            {"id": doc.id, "cloudServices": list(cloud_services.values())}
-        )
+    documents_res = [extract_for_doc(doc) for doc in body.documents]    
     return {"documents": documents_res}

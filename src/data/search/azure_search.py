@@ -1,4 +1,9 @@
 import requests
+import requests_cache
+from datetime import timedelta
+
+
+requests_cache.install_cache('cloud_service_ner_search', expire_after=timedelta(days=1))
 
 
 class AzureSearchClient:

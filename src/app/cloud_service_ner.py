@@ -2,6 +2,7 @@ import os
 from typing import List
 from collections import defaultdict
 import spacy
+from spacy.tokens import Span
 
 from src.app.exceptions import DocumentParseError
 from src.app.labels import AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE
@@ -16,16 +17,13 @@ class CloudServiceExtractor:
         self.nlp = spacy.load("en_ner_azure_lg")
         print("Done")
 
-        self.service_cache = {}
+        # self.service_cache = {}
 
     def resolve_service_name(self, name, threshold=0.8):
         """
         Resolve the name of the service from the 
         NER model to the search index
         """
-        if name in self.service_cache:
-            return self.service_cache[name]
-
         res = self.search_client.suggest(name)
 
         if res.status_code == 200:
@@ -35,9 +33,7 @@ class CloudServiceExtractor:
             else:
                 search_res = self.search_client.search(suggestion["@search.text"])
             top_res = search_res.json()["value"][0]
-            if top_res["@search.score"] > threshold:
-                self.service_cache[name] = top_res
-                return self.service_cache[name]
+            return top_res
         else:
             print(res.text)
             return None
@@ -48,7 +44,6 @@ class CloudServiceExtractor:
         """
         try:
             doc = self.nlp(text)
-            # relations, root_verb = extract_relations_and_root_verb(doc, service_labels)
         except ValueError:
             raise DocumentParseError
 
@@ -77,5 +72,5 @@ class CloudServiceExtractor:
                             break
                         else:
                             cur = cur.head
-
-                yield doc[ent.i : ent.i + 1], service, relation, root_verb
+                
+                yield Span(doc, ent.i, ent.i + 1, label=ent.ent_type), service, relation, root_verb
