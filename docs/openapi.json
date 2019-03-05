@@ -26,7 +26,7 @@
                                 "documents": [
                                     {
                                         "id": "1",
-                                        "text": "Create serverless logic with Azure Functions",
+                                        "text": "Create serverless logic with Azure Functions and event hubs",
                                         "language": "en"
                                     }
                                 ]
@@ -324,20 +324,17 @@
                 }
             },
             "DocumentServices": {
-                "type": "array",
-                "items": {
-                    "required": ["cloudServices", "id"],
-                    "type": "object",
-                    "properties": {
-                        "cloudServices": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/components/schemas/Service"
-                            }
-                        },
-                        "id": {
-                            "type": "string"
+                "required": ["cloudServices", "id"],
+                "type": "object",
+                "properties": {
+                    "cloudServices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Service"
                         }
+                    },
+                    "id": {
+                        "type": "string"
                     }
                 }
             },

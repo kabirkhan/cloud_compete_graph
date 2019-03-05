@@ -17,8 +17,6 @@ class CloudServiceExtractor:
         self.nlp = spacy.load("en_ner_azure_lg")
         print("Done")
 
-        # self.service_cache = {}
-
     def resolve_service_name(self, name, threshold=0.8):
         """
         Resolve the name of the service from the 
