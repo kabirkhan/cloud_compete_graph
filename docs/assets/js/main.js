@@ -61,9 +61,9 @@
     $('#submit').addEventListener('click', ev => run());
     $('#input').addEventListener('keydown', ev => (event.keyCode == 13) && run());
 
-    const navDisplay = (ev) => {
-        event.target.addClass('is-active')
-        event.target.addClass('u-strong')
+    const navDisplay = (e) => {
+        e.target.addClass('is-active')
+        e.target.addClass('u-strong')
         // event.target.addClass('is-active')
         // event.target.addClass('u-strong')
     }
