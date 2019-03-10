@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
-
-import click
-import logging
 from pathlib import Path
 from urllib.parse import parse_qs
 
 from bs4 import BeautifulSoup
-import pandas as pd
 import requests
 from src.data.cloud._base import BaseCloudProvider
 
 
 class DigitalOceanCloudProvider(BaseCloudProvider):
-    def scrape_services(self) -> pd.DataFrame:
+    def scrape_services(self):
         base_url = 'https://www.digitalocean.com/'
         base_soup = BeautifulSoup(requests.get(base_url).text, 'html.parser')
 
@@ -43,5 +39,4 @@ class DigitalOceanCloudProvider(BaseCloudProvider):
                 'uri': service_link
             })
 
-        digiocean_df = pd.DataFrame(digiocean_services)
-        return digiocean_df
+        return digiocean_services

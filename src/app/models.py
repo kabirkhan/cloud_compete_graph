@@ -41,3 +41,7 @@ class DocumentResponse(BaseModel):
 
 class DocumentsResponse(BaseModel):
     documents: List[DocumentResponse]
+
+
+class EntityRequest(BaseModel):
+    text: str

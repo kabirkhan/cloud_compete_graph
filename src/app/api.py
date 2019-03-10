@@ -3,11 +3,12 @@ import multiprocessing as mp
 
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
 from src.app.exceptions import DocumentParseError
 from src.app.cloud_service_ner import CloudServiceExtractor
-from src.app.models import DocumentRequest, DocumentsRequest, DocumentsResponse
+from src.app.models import DocumentRequest, DocumentsRequest, DocumentResponse, DocumentsResponse, EntityMatch, EntityRequest
 from src.data.search.azure_search import AzureSearchClient
 
 
@@ -30,6 +31,13 @@ app = FastAPI(
     description="API for the Cloud Compete Graph Named Entity Recognition models",
     version="1.0.0",
     openapi_prefix=prefix,
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -90,3 +98,10 @@ def extract(body: DocumentsRequest):
 
     documents_res = [extract_for_doc(doc) for doc in body.documents]    
     return {"documents": documents_res}
+
+
+@app.post("/ent", response_model=DocumentResponse)
+def ent(doc: DocumentRequest):
+    res = extract_for_doc(doc)
+    print(res)
+    return res

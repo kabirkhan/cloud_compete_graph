@@ -26,10 +26,7 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Services
-services: requirements
-	$(PYTHON_INTERPRETER) src/data/cloud/aws.py data/raw/aws_services.csv
-	$(PYTHON_INTERPRETER) src/data/cloud/azure.py data/raw/azure_services.csv
-	$(PYTHON_INTERPRETER) src/data/cloud/google.py data/raw/gcp_services.csv
+services: $(PYTHON_INTERPRETER) src/data/cloud/__init__.py
 
 ## Make Graph
 graph: #requirements

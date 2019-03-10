@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
 
-import click
-import logging
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 from urllib.parse import urlparse
 from src.data.cloud._base import BaseCloudProvider
 
 
 class GoogleCloudProvider(BaseCloudProvider):
-    def scrape_services(self) -> pd.DataFrame:
+    def scrape_services(self):
         GOOGLE_BASE_URL = 'https://cloud.google.com/products'
         soup = BeautifulSoup(requests.get(GOOGLE_BASE_URL).text, 'html.parser')
         category_soups = soup.find_all('div', {'class': 'cloud-product-card'})
@@ -51,12 +48,9 @@ class GoogleCloudProvider(BaseCloudProvider):
                         icon_class = try_free_button_soup['class'][-1]
                         service['icon'] = f"{GOOGLE_BASE_URL}/_static/images/cloud/products/logos/svg/{icon_class}-icon.svg"
                     except:
-                        print("No icon or long description")
+                        print("No icon or long description for Google Service", service['link'])
                         pass
                 
                 services.append(service)
-        gcp_services = pd.DataFrame(services)
-        gcp_services = gcp_services[[
-            'category_name', 'name', 'short_description', 'long_description', 'link', 'icon'
-        ]]
-        return gcp_services
+
+        return services

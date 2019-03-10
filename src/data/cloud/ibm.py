@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 import json
 
-import click
-import logging
 from pathlib import Path
 from urllib.parse import parse_qs
 
 from bs4 import BeautifulSoup
-import pandas as pd
 import requests
 from src.data.cloud._base import BaseCloudProvider
 
 
 class IBMCloudProvider(BaseCloudProvider):
-    def scrape_services(self) -> pd.DataFrame:
+    def scrape_services(self):
         base_url = 'https://www.ibm.com'
         res = requests.get(f'{base_url}/cloud/products')
         base_soup = BeautifulSoup(res.text, 'html.parser')
@@ -38,9 +35,6 @@ class IBMCloudProvider(BaseCloudProvider):
                 learn_more_idx = cat_description.index(cat_link_soup.text.strip())
                 cat_description = cat_description[:learn_more_idx]
 
-            
-            print('Getting service metadata from IBM category: ', cat_name)
-            
             for card_soup in services_soup.find_all('div', {'class': 'ibm-card'}):
                 service_link_soup = card_soup.find('a')
                 service_name = service_link_soup.text.strip()
@@ -76,5 +70,4 @@ class IBMCloudProvider(BaseCloudProvider):
                     'uri': service_link
                 })
 
-        ibm_df = pd.DataFrame(ibm_services)
-        return ibm_df
+        return ibm_services

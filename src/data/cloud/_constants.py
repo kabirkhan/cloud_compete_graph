@@ -7,5 +7,5 @@ class Cloud(Enum):
     DIGITALOCEAN = 'DIGITALOCEAN'
     GCP = 'GCP'
     IBM = 'IBM'
-    # ORACLE = 'ORACLE'
+    ORACLE = 'ORACLE'
     

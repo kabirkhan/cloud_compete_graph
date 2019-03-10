@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
-
-import click
-import logging
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 from src.data.cloud._base import BaseCloudProvider
 
 
 class AzureCloudProvider(BaseCloudProvider):
-    def scrape_services(self) -> pd.DataFrame:
+    def scrape_services(self):
         AZURE_DOCS_URL = 'https://docs.microsoft.com/en-us/azure/'
         
         soup = BeautifulSoup(requests.get(AZURE_DOCS_URL + '#pivot=products').text, 'html.parser')
@@ -66,8 +62,4 @@ class AzureCloudProvider(BaseCloudProvider):
                     'link': link
                 })
 
-        azure_services_df = pd.DataFrame(azure_services)
-        azure_services_df = azure_services_df[[
-            'category_id', 'category_name', 'name', 'short_description', 'long_description', 'link', 'icon'
-        ]]
-        return azure_services_df
+        return azure_services
