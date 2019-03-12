@@ -76,7 +76,6 @@
     const updateView = (text, model, ents) => {
         $('#input').value = text;
         ents.forEach(ent => $(`[value="${ent}"]`).checked = true);
-        $(`[value="${model}"]`).checked = true;
     }
 
 
