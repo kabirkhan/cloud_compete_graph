@@ -36,7 +36,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const text = getQueryVar('text') || defaultText;
-        const model = getQueryVar('model') || defaultModel;
+        const model = defaultModel;
         const ents = (getQueryVar('ents')) ? getQueryVar('ents').split(',') : defaultEnts;
 
         if(text) updateView(text, model, ents);
@@ -49,11 +49,12 @@
     const run = (
         text = $('#input').value || defaultText,
         ents = [...$$('[name="ents"]:checked')].map(ent => ent.value),
-        model = $('[name="model"]:checked').value || defaultModel ) => {
+        model = (defaultModel) => {
             displacy.parse(text, model, ents);
             updateView(text, model, ents);
             updateURL(text, model, ents);
-    }
+        }
+    )
 
 
     // UI Event Listeners
