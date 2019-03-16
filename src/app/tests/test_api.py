@@ -9,7 +9,7 @@ def test_api_validation_error():
     assert response.status_code == 422
 
 
-def test_api_success():
+def test_documents_api_success():
     client = TestClient(app)
 
     with open("src/app/tests/data/request_body.json") as request_body_file:
@@ -27,3 +27,26 @@ def test_api_success():
                 assert isinstance(s[k], str)
             for k in ["serviceCategories", "relatedServices", "matches"]:
                 assert isinstance(s[k], list)
+
+
+def test_azure_cognitive_search_success():
+    client = TestClient(app)
+
+    request_body = {
+        "values": [
+            {
+                "recordId": "a1",
+                "data": {
+                    "text": "Create serverless logic with Azure Functions",
+                    "language": "en",
+                },
+            }
+        ]
+    }
+    response = client.post("azure_cognitive_search", json=request_body)
+    assert response.status_code == 200
+    data = response.json()
+    assert "values" in data
+    for doc in data["values"]:
+        assert "recordId" in doc
+        assert "cloudServices" in doc["data"]

@@ -8,7 +8,14 @@ from starlette.responses import RedirectResponse
 
 from src.app.exceptions import DocumentParseError
 from src.app.cloud_service_ner import CloudServiceExtractor
-from src.app.models import DocumentRequest, DocumentsRequest, DocumentResponse, DocumentsResponse, EntityMatch, EntityRequest
+from src.app.models import (
+    DocumentRequest,
+    DocumentsRequest,
+    DocumentResponse,
+    DocumentsResponse,
+    AzureSearchDocumentsRequest,
+    AzureSearchDocumentsResponse,
+)
 from src.data.search.azure_search import AzureSearchClient
 
 
@@ -41,9 +48,10 @@ app.add_middleware(
 )
 
 
-def extract_for_doc(doc: DocumentRequest):
+def extract_from_text(text: str):
+    """Extract Cloud Services from raw text"""
     cloud_services = {}
-    for ent, service, relation, root_verb in cse.extract(doc.text):
+    for ent, service, relation, root_verb in cse.extract(text):
         if service["id"] not in cloud_services:
             cloud_services[service["id"]] = {
                 "serviceId": service["id"],
@@ -68,10 +76,7 @@ def extract_for_doc(doc: DocumentRequest):
         if root_verb:
             match["rootVerb"] = root_verb.lemma_
         cloud_services[service["id"]]["matches"].append(match)
-    return {
-        'id': doc.id,
-        'cloudServices': list(cloud_services.values())
-    }
+    return list(cloud_services.values())
 
 
 @app.get("/", include_in_schema=False)
@@ -79,9 +84,7 @@ def root():
     return RedirectResponse(url=f"{prefix}/docs")
 
 
-@app.post(
-    "/extract", response_model=DocumentsResponse, tags=["Named Entity Recognition"]
-)
+@app.post("/extract", response_model=DocumentsResponse, tags=["NER"])
 def extract(body: DocumentsRequest):
     """
     Example:
@@ -96,12 +99,33 @@ def extract(body: DocumentsRequest):
     }
     """
 
-    documents_res = [extract_for_doc(doc) for doc in body.documents]    
+    documents_res = []
+    for doc in body.documents:
+        cloud_services = extract_from_text(doc.text)
+        documents_res.append({"id": doc.id, "cloudServices": cloud_services})
     return {"documents": documents_res}
+
+
+@app.post(
+    "/azure_cognitive_search",
+    response_model=AzureSearchDocumentsResponse,
+    tags=["NER", "Azure Search"],
+)
+def extract_for_azure_search(body: AzureSearchDocumentsRequest):
+    """Extract Cloud Services for each document in an Azure Search Index.
+    This route can be configured directly as a Cognitive Skill in Azure Search"""
+
+    values_res = []
+    for val in body.values:
+        cloud_services = [c["serviceName"] for c in extract_from_text(val.data.text)]
+        values_res.append(
+            {"recordId": val.recordId, "data": {"cloudServices": cloud_services}}
+        )
+    return {"values": values_res}
 
 
 @app.post("/ent", response_model=DocumentResponse)
 def ent(doc: DocumentRequest):
-    res = extract_for_doc(doc)
+    res = extract_from_text(doc.text)
     print(res)
     return res

@@ -70,5 +70,7 @@ class CloudServiceExtractor:
                             break
                         else:
                             cur = cur.head
-                
-                yield Span(doc, ent.i, ent.i + 1, label=ent.ent_type), service, relation, root_verb
+
+                yield Span(
+                    doc, ent.i, ent.i + 1, label=ent.ent_type
+                ), service, relation, root_verb
