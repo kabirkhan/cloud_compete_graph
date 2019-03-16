@@ -122,10 +122,3 @@ def extract_for_azure_search(body: AzureSearchDocumentsRequest):
             {"recordId": val.recordId, "data": {"cloudServices": cloud_services}}
         )
     return {"values": values_res}
-
-
-@app.post("/ent", response_model=DocumentResponse)
-def ent(doc: DocumentRequest):
-    res = extract_from_text(doc.text)
-    print(res)
-    return res
