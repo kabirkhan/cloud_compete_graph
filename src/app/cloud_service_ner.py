@@ -24,16 +24,18 @@ class CloudServiceExtractor:
         """
         res = self.search_client.suggest(name)
 
-        if res.status_code == 200:
+        try:
+            res.raise_for_status()
             suggestion = res.json()["value"][0] if res.json()["value"] else name
             if isinstance(suggestion, str):
                 search_res = self.search_client.search(name)
             else:
                 search_res = self.search_client.search(suggestion["@search.text"])
+            search_res.raise_for_status()
             top_res = search_res.json()["value"][0]
             return top_res
-        else:
-            print(res.text)
+        except:
+            print(f'Could not resolve: {name}')
             return None
 
     def extract(self, text, ent_labels=[AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE]):
