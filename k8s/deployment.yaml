@@ -44,11 +44,11 @@ spec:
         imagePullPolicy: Always
         resources:
           requests:
-            memory: 1G
-            cpu: 1.5
+            memory: 2G
+            cpu: 2
           limits:
             memory: 2G
-            cpu: 1.5
+            cpu: 2
         ports:
         - name: http-api
           containerPort: 8080

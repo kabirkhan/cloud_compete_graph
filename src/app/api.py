@@ -29,7 +29,7 @@ if not prefix:
     prefix = ""
 prefix = prefix.rstrip("/")
 
-search_client = AzureSearchClient(search_account_name, search_api_key)
+search_client = AzureSearchClient(search_account_name, search_api_key, 'services')
 cse = CloudServiceExtractor(search_client)
 
 
