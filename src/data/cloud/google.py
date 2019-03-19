@@ -5,6 +5,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+from tqdm import tqdm
 from src.data.cloud._base import BaseCloudProvider
 
 
@@ -16,7 +17,7 @@ class GoogleCloudProvider(BaseCloudProvider):
 
         services = []
 
-        for cat_soup in category_soups:        
+        for cat_soup in category_soups:
             cat_title = cat_soup.find('a').text.strip()
             if 'arrow_forward' in cat_title:
                 cat_title = cat_title[:cat_title.index('arrow_forward') - 1]
@@ -48,7 +49,6 @@ class GoogleCloudProvider(BaseCloudProvider):
                         icon_class = try_free_button_soup['class'][-1]
                         service['icon'] = f"{GOOGLE_BASE_URL}/_static/images/cloud/products/logos/svg/{icon_class}-icon.svg"
                     except:
-                        print("No icon or long description for Google Service", service['link'])
                         pass
                 
                 services.append(service)

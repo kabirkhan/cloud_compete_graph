@@ -1,0 +1,330 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "prefixparam": {
+            "type": "string",
+            "minLength": 1
+        },
+        "osDiskSizeGB": {
+            "type": "int",
+            "defaultValue": 0,
+            "metadata": {
+                "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+            },
+            "minValue": 0,
+            "maxValue": 1023
+        },
+        "agentCount": {
+            "type": "int",
+            "defaultValue": 3,
+            "metadata": {
+                "description": "The number of nodes for the cluster."
+            },
+            "minValue": 1,
+            "maxValue": 50
+        },
+        "agentVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D8s_v3",
+            "metadata": {
+                "description": "The size of the Virtual Machine."
+            }
+        },
+        "sshRSAPublicKey": {
+            "type": "string",
+            "metadata": {
+                "description": "Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example 'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm'"
+            }
+        },
+        "servicePrincipalClientId": {
+            "metadata": {
+                "description": "Client ID (used by cloudprovider)"
+            },
+            "type": "securestring"
+        },
+        "servicePrincipalClientSecret": {
+            "metadata": {
+                "description": "The Service Principal Client Secret."
+            },
+            "type": "securestring"
+        },
+        "osType": {
+            "type": "string",
+            "defaultValue": "Linux",
+            "allowedValues": [
+                "Linux"
+            ],
+            "metadata": {
+                "description": "The type of operating system."
+            }
+        },
+        "kubernetesVersion": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The version of Kubernetes."
+            }
+        },
+        "functions-storage-account-sku": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_ZRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Premium_LRS"
+            ]
+        },
+        "search-sku": {
+            "type": "string",
+            "defaultValue": "basic",
+            "allowedValues": [
+              "free",
+              "basic",
+              "standard",
+              "standard2",
+              "standard3"
+            ],
+            "metadata": {
+              "description": "The SKU of the search service you want to create. E.g. free or standard"
+            }
+        },
+        "publisherEmail": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+              "description": "The email address of the owner of the service"
+            }
+        },
+        "publisherName": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+              "description": "The name of the owner of the service"
+            }
+        },
+        "apim-sku": {
+            "type": "string",
+            "allowedValues": [
+              "Developer",
+              "Standard",
+              "Premium",
+              "Consumption"
+            ],
+            "defaultValue": "Consumption",
+            "metadata": {
+              "description": "The pricing tier of this API Management service"
+            }
+        },
+        "apiManagementServiceName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the API Management Service"
+            }
+        }
+    },
+    "variables": {
+        "clusterName": "[concat(parameters('prefixparam'), '-cluster')]",
+        "linuxAdminUsername": "[concat(parameters('prefixparam'), 'admin')]",
+        "acrName": "[concat(parameters('prefixparam'), 'azcr')]",
+        "cosmosdb-account-name": "[concat(parameters('prefixparam'), '-graph')]",
+        "hosting-plan-name": "[concat(parameters('prefixparam'), '-app-service-plan')]",
+        "function-app-name": "[concat(parameters('prefixparam'), '-api')]",
+        "application-insights-account-name": "[concat(parameters('prefixparam'), '-insights')]",
+        "functions-storage-account-name": "[concat(parameters('prefixparam'), 'funcapistorage')]",
+        "searchName": "[concat(parameters('prefixparam'), 'search')]",
+        
+    },
+    "resources": [
+        {
+            "apiVersion": "2018-03-31",
+            "type": "Microsoft.ContainerService/managedClusters",
+            "location": "[resourceGroup().location]",
+            "name": "[variables('clusterName')]",
+            "properties": {
+                "kubernetesVersion": "[parameters('kubernetesVersion')]",
+                "dnsPrefix": "[variables('clusterName')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "count": "[parameters('agentCount')]",
+                        "vmSize": "[parameters('agentVMSize')]",
+                        "osType": "[parameters('osType')]",
+                        "storageProfile": "ManagedDisks"
+                    }
+                ],
+                "linuxProfile": {
+                    "adminUsername": "[variables('linuxAdminUsername')]",
+                    "ssh": {
+                        "publicKeys": [
+                            {
+                                "keyData": "[parameters('sshRSAPublicKey')]"
+                            }
+                        ]
+                    }
+                },
+                "servicePrincipalProfile": {
+                    "clientId": "[parameters('servicePrincipalClientId')]",
+                    "secret": "[parameters('servicePrincipalClientSecret')]"
+                },
+                "enableRBAC": true
+            }
+        },
+        {
+            "name": "[variables('acrName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2017-10-01",            
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "adminUserEnabled": true                
+            }
+        },
+        {
+            "name": "[variables('application-insights-account-name')]",
+            "type": "Microsoft.Insights/components",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01",
+            "tags": {
+                "displayName": "APPLICATION-INSIGHTS"
+            },
+            "properties": {}
+        },
+        {
+            "name": "[variables('cosmosdb-account-name')]",
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2015-04-08",
+            "location": "[resourceGroup().location]",
+            "tags": {
+              "displayName": "CosmosDB-Account",
+              "defaultExperience": "Gremlin (graph)"
+            },
+            "kind": "GlobalDocumentDB",
+            "properties": {
+              "name": "[variables('cosmosdb-account-name')]",
+              "locations": [
+                {
+                  "locationName": "[resourceGroup().location]",
+                  "failoverPriority": 0
+                }
+              ],
+              "databaseAccountOfferType": "Standard",
+              "capabilities": [
+                    {
+                        "name": "EnableGremlin"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "kind": "functionapp",
+            "name": "[variables('hosting-plan-name')]",
+            "apiVersion": "2015-08-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
+            },
+            "properties": {
+                "name": "[variables('hosting-plan-name')]"
+            },
+            "dependsOn": []
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('function-app-name')]",
+            "location": "[resourceGroup().location]",
+            "kind": "functionapp",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('hosting-plan-name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('functions-storage-account-name'))]"
+            ],
+            "properties": {
+                "name": "[variables('function-app-name')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms',variables('hosting-plan-name'))]"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('function-app-name'))]",
+                        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb-account-name'))]"
+                    ],
+                    "properties": {
+                        "FUNCTIONS_EXTENSION_VERSION": "~2",
+                        "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('functions-storage-account-name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('functions-storage-account-name')), '2015-05-01-preview').key1)]",
+                        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('functions-storage-account-name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('functions-storage-account-name')), '2015-05-01-preview').key1)]",
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('application-insights-account-name')), '2014-04-01').InstrumentationKey]",
+                        "AzureWebJobsSecretStorageType": "Blob",
+                        "CosmosDBConnection": "[concat('AccountEndpoint=https://', variables('cosmosdb-account-name'), '.documents.azure.com:443/;AccountKey=', listkeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb-account-name')), '2015-04-08').primaryMasterKey, ';')]",
+                        "CosmosDBName": "db",
+                        "CosmosGraphName": "ccg"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[variables('functions-storage-account-name')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2016-01-01",
+            "sku": {
+                "name": "[parameters('functions-storage-account-sku')]"
+            },
+            "dependsOn": [],
+            "tags": {
+                "displayName": "FUNCTIONS-STORAGE-ACCOUNT"
+            },
+            "kind": "Storage"
+        },
+        {
+            "apiVersion": "2015-08-19",
+            "name": "[variables('searchName')]",
+            "type": "Microsoft.Search/searchServices",
+            "location": "[resourceGroup().location]",
+            "sku": {
+              "name": "[toLower(parameters('search-sku'))]"
+            },
+            "properties": {
+              "replicaCount": 1,
+              "partitionCount": 1,
+              "hostingMode": "default"
+            }
+        },
+        {
+            "apiVersion": "2018-06-01-preview",
+            "name": "[parameters('apiManagementServiceName')]",
+            "type": "Microsoft.ApiManagement/service",
+            "location": "westus",
+            "tags": {},
+            "sku": {
+              "name": "[parameters('apim-sku')]"
+            },
+            "properties": {
+              "publisherEmail": "[parameters('publisherEmail')]",
+              "publisherName": "[parameters('publisherName')]"
+            }
+        }
+    ],
+    "outputs": {
+        "controlPlaneFQDN": {
+            "type": "string",
+            "value": "[reference(variables('clusterName')).fqdn]"
+        }
+    }
+}

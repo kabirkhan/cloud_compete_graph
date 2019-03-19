@@ -8,9 +8,12 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from src.data.cloud._constants import Cloud
 
 
 class BaseCloudProvider(metaclass=abc.ABCMeta):
+    def __init__(self, cloud: Cloud):
+        self.cloud = cloud
 
     @abc.abstractmethod
     def scrape_services(self) -> pd.DataFrame:

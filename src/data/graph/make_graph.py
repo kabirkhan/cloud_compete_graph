@@ -9,7 +9,9 @@ from fuzzywuzzy import fuzz
 import configparser
 import requests
 import pandas as pd
+from tqdm import tqdm
 
+from src.data.cloud._constants import Cloud
 from src.data.cosmos import GremlinQueryManager, DocumentQueryManager
 from src.data.graph.gremlin import GremlinQueryBuilder
 
@@ -20,7 +22,6 @@ def add_cloud(gremlin_qm, data_directory, cloud_abbr, cloud_name):
         2. Add cloud specific categories and link them up to the cloud vertex
         3. Add cloud specific services and link them to the appropriate category
     """
-    print(f'Adding {cloud_name}')
     # 1
     q = GremlinQueryBuilder.build_upsert_vertex_query('cloud', {
         'name': cloud_name, 'abbreviation': cloud_abbr
@@ -132,14 +133,20 @@ def construct_base_graph(data_directory):
     gremlin_qm = GremlinQueryManager(account_name, master_key, db_name, graph_name)
 
     # 1. Add cloud nodes to graph
-    clouds = {
-        'aws': 'Amazon Web Services', 
-        'azure': 'Microsoft Azure', 
-        'gcp': 'Google Cloud'
-    }
+    clouds = dict(zip([c.value.lower() for c in Cloud], [
+        'Alibaba',
+        'Amazon Web Services',
+        'Microsoft Azure',
+        'DigitalOcean',
+        'Google Cloud',
+        'IBM Cloud',
+        'Oracle Cloud'
+    ]))
 
     cloud_categories = {}
-    for cloud_abbr, cloud_name in clouds.items():
+    pbar = tqdm(clouds.items())
+    for cloud_abbr, cloud_name in pbar:
+        pbar.set_description(cloud_name)
         _, cats, _ = add_cloud(gremlin_qm, data_directory, cloud_abbr, cloud_name)
         cloud_categories[cloud_abbr] = cats
 
@@ -147,17 +154,24 @@ def construct_base_graph(data_directory):
         cloud_categories['aws'], cloud_categories['azure']
     )
 
-    normalized_cats = normalize_category_lists(
-        cloud_categories['gcp'], normalized_cats.values(),
-        ratio=60, normalized_cats=normalized_cats
-    )
+    other_clouds = [c for c in clouds.keys() if c not in ('aws', 'azure')]
+    print(other_clouds)
+
+    for oc in other_clouds:
+        normalized_cats = normalize_category_lists(
+            cloud_categories[oc], normalized_cats.values(),
+            ratio=65, normalized_cats=normalized_cats
+        )
 
     print('Normalized Categories: ')
     print(json.dumps(normalized_cats, indent=4))
 
-    # Adding a couple obvious edge cases from Google Cloud
+    # Google Cloud edge cases
     normalized_cats['Cloud IAM'] = normalized_cats['Identity']
     normalized_cats['Cloud IOT Core'] = normalized_cats['Internet of Things']
+
+    # Alibaba edge cases
+    normalized_cats['Elastic Computing'] = 'Compute'
 
     add_normalized_categories(gremlin_qm, normalized_cats)
 

@@ -5,11 +5,13 @@ import json
 import csv
 import re
 import os
+from pathlib import Path
 
 import dedupe
 from unidecode import unidecode
 import prodigy
 from prodigy.components.db import connect
+from prodigy.components.loaders import JSONL
 from dotenv import find_dotenv, load_dotenv
 import pandas as pd
 from gremlin_python import statics
@@ -28,18 +30,22 @@ def preProcess(column):
     Do a little bit of data cleaning with the help of Unidecode and Regex.
     Things like casing, extra spaces, quotes and new lines can be ignored.
     """
-
+    
+    
     column = unidecode(column)
     column = re.sub('\n', ' ', column)
     column = re.sub('-', '', column)
     column = re.sub('/', ' ', column)
     column = re.sub("'", '', column)
-    column = re.sub(",", '', column)
     column = re.sub(":", ' ', column)
     column = re.sub('  +', ' ', column)
     column = column.strip().strip('"').strip("'").lower().strip()
     if not column:
         column = None
+    if column.startswith('[') and column.endswith(']'):
+        column = tuple(column[1:-1].split(','))
+    if isinstance(column, str):
+        column = re.sub(",", '', column)
     return column
 
 
@@ -54,6 +60,7 @@ def readData(filename):
     with open(filename) as f:
         reader = csv.DictReader(f)
         for i, row in enumerate(reader):
+            
             clean_row = dict([(k, preProcess(v)) for (k, v) in row.items()])
             data_d[filename + str(i)] = dict(clean_row)
 
@@ -117,13 +124,13 @@ def record_pairs_stream(linker):  # pragma: no cover
             try:
                 record_pair = uncertain_pairs.pop()
                 a, b = record_pair
-                if a['category_name'] == b['category_name']:
 
+                if set(a['categories']).intersection(set(b['categories'])):
                     example = []
 
                     for field_name in list(a.keys()):
                         if field_name in fields:
-                            exact_match = a[field_name] == b[field_name]                        
+                            exact_match = a[field_name] == b[field_name]
                             example.append({
                                 'name': field_name,
                                 'a_value': a[field_name],
@@ -144,10 +151,15 @@ def update_linker(linker, examples):
         record_a = {}
         record_b = {}
         for field in e['fields']:
-            record_a[field['name']] = field['a_value']
-            record_b[field['name']] = field['b_value']
+            if isinstance(field['a_value'], list) and isinstance(field['b_value'], list):
+                record_a[field['name']] = tuple(field['a_value'])
+                record_b[field['name']] = tuple(field['b_value'])
+            else:
+                record_a[field['name']] = field['a_value']
+                record_b[field['name']] = field['b_value']
 
         record_pair = (record_a, record_b)
+        
 
         if e['answer'] == 'accept':
             labeled_pairs['match'].append(record_pair)
@@ -170,9 +182,10 @@ def validate_field(field):
     dataset=("The dataset to use", "positional", None, str),
     left_records_abbr=("Vertex label for records to show on the left in annotation UI", "option", "left", str),
     right_records_abbr=("Vertex label for records to show on the right in annotation UI", "option", "right", str),
-    fields_json_file_path=("The path to a JSON config file for dedupe.io fields", "option", "fields", str)
+    fields_json_file_path=("The path to a JSON config file for dedupe.io fields", "option", "fields", str),
+    known_matches_filepath=("The path to a JSONL file with known matches", "option", "km", str)
 )
-def link_records(dataset, left_records_abbr, right_records_abbr, fields_json_file_path):
+def link_records(dataset, left_records_abbr, right_records_abbr, fields_json_file_path, known_matches_filepath='src/prodigy/known_matches.jsonl'):
     """
     Collect the best possible training data for linking records across multiple
     datasets. This recipe is an example of linking records across 2 CSV files
@@ -191,16 +204,18 @@ def link_records(dataset, left_records_abbr, right_records_abbr, fields_json_fil
 
     # left_records = get_services(doc_qm, left_record_label)
     # right_records = get_services(doc_qm, right_record_label)
-    left_record_file_path = f'../../data/processed/{left_records_abbr}_dedupe_data.csv'
-    right_record_file_path = f'../../data/processed/{right_records_abbr}_dedupe_data.csv'
+    left_record_file_path = f'data/processed/{left_records_abbr}_dedupe_data.csv'
+    right_record_file_path = f'data/processed/{right_records_abbr}_dedupe_data.csv'
     left_records = readData(left_record_file_path)
     right_records = readData(right_record_file_path)
 
     db = connect()  # uses the settings in your prodigy.json
 
-    output_file = f'../../data/processed/{left_records_abbr}_{right_records_abbr}_data_matching_output.csv'
-    settings_file = 'data_matching_learned_settings'
-    training_file = 'data_matching_training.json'
+    output_path = f'data/processed/{left_records_abbr}_{right_records_abbr}_dedupe'
+    os.makedirs(output_path, exist_ok=True)
+    output_file = f'{output_path}/data_matching_output.csv'
+    settings_file = f'{output_path}/data_matching_learned_settings'
+    training_file = f'{output_path}/data_matching_training.json'
 
     def descriptions():
         for dataset in (left_records, right_records):
@@ -217,9 +232,7 @@ def link_records(dataset, left_records_abbr, right_records_abbr, fields_json_fil
             func_name = field['corpus'][1:-1]
             field['corpus'] = locals()[func_name].__call__()
 
-    print('LEN RECORDS: ', len(left_records) / 2, len(right_records) / 2)
-    print('MIN SAMPLE', min(len(left_records) / 2, len(right_records) / 2))
-    print(fields)
+    # print(json.dumps(fields, indent=4))
 
     linker = dedupe.RecordLink(fields)
     # To train the linker, we feed it a sample of records.
@@ -230,15 +243,28 @@ def link_records(dataset, left_records_abbr, right_records_abbr, fields_json_fil
         # round(min(len(left_records) / 2, len(right_records) / 2))
     )
 
-    print('getting examples')
     # If we have training data saved from a previous run of linker,
     # look for it an load it in.
     examples = db.get_dataset(dataset)
     if examples:
         linker = update_linker(linker, examples)
+    
+    # Add known matches
+    known_matches = []
+    for match in JSONL(known_matches_filepath):
+        left_match = None
+        right_match = None
+        for lr in left_records.values():
+            if left_records_abbr in match and lr['name'] == match[left_records_abbr].lower():
+                left_match = lr
+        for rr in right_records.values():
+            if right_records_abbr in match and rr['name'] == match[right_records_abbr].lower():
+                right_match = rr
+        if left_match and right_match:
+            known_matches.append((left_match, right_match))
+    linker.markPairs({'distinct': [], 'match': known_matches})
 
     def update(examples, linker=linker):
-        print(len(examples))
         linker = update_linker(linker, examples)
 
     def get_progress(session=0, total=0, loss=0, linker=linker):
@@ -252,6 +278,10 @@ def link_records(dataset, left_records_abbr, right_records_abbr, fields_json_fil
         return progress
 
     def on_exit(controller, linker=linker):
+        print('TRAINING PAIRS')
+        print(linker.training_pairs)
+        print('=' * 50)
+        print('=' * 50)
         linker.train()
         # Save our weights and predicates to disk.  If the settings file
         # exists, we will skip all the training and learning next time we run
@@ -316,7 +346,7 @@ def link_records(dataset, left_records_abbr, right_records_abbr, fields_json_fil
 
     stream = record_pairs_stream(linker)
 
-    with open('./record_pairs.html') as template_file:
+    with open('src/prodigy/record_pairs.html') as template_file:
         html_template = template_file.read()
 
     return {

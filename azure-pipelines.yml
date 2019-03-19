@@ -14,7 +14,7 @@ steps:
 - script: |
     az login --service-principal --username $(AZ_SP_ID) --password $AZ_SP_PASSWORD --tenant $(AZ_SP_TENANT_ID)
     az aks install-cli
-    az aks get-credentials -g $(RESOURCE_GROUP) -n $(ACCOUNT_NAME)
+    az aks get-credentials -g $(RESOURCE_GROUP) -n $(AZ_AKS_CLUSTER_NAME)
   env:
     AZ_SP_PASSWORD: $(AZ_SP_PASSWORD)
   displayName: Login with Azure CLI
@@ -28,18 +28,19 @@ steps:
     echo "# DO NOT CHECK INTO GITHUB, THIS FILE CONTAINS SECRETS" >> ./forge.yaml
     echo "registry:" >> ./forge.yaml
     echo "  type: docker" >> ./forge.yaml
-    echo "  url: ccgcr.azurecr.io" >> ./forge.yaml
-    echo "  user: ccgcr" >> ./forge.yaml
+    echo "  url: $AZ_ACR_ACCOUNT.azurecr.io" >> ./forge.yaml
+    echo "  user: $AZ_ACR_ACCOUNTcr" >> ./forge.yaml
     echo -n "  password: " >> ./forge.yaml
     printf $AZ_ACR_PASSWORD | base64 >> ./forge.yaml
-    echo "  namespace: ccgcr" >> ./forge.yaml
+    echo "  namespace: $AZ_ACR_ACCOUNT" >> ./forge.yaml
   env:
+    AZ_ACR_ACCOUNT: $(AZ_ACR_ACCOUNT) 
     AZ_ACR_PASSWORD: $(AZ_ACR_PASSWORD)
   displayName: Write forge configuration
 - script: |
     python3 write_env.py
   env:
-    AZURE_ACCOUNT_NAME: $(ACCOUNT_NAME)
+    AZURE_SEARCH_ACCOUNT_NAME: $(AZURE_SEARCH_ACCOUNT_NAME)
     AZURE_SEARCH_KEY: $(AZURE_SEARCH_KEY)
   displayName: Write Config
 - script: |
@@ -56,4 +57,4 @@ steps:
   displayName: Test with pytest
 - script: |
     forge --profile stable deploy
-  displayName: Deploy to $(ACCOUNT_NAME) cluster
+  displayName: Deploy to $(AZ_AKS_CLUSTER_NAME) cluster

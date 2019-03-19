@@ -6,6 +6,7 @@ from urllib.parse import parse_qs
 
 from bs4 import BeautifulSoup
 import requests
+from tqdm import tqdm
 from src.data.cloud._base import BaseCloudProvider
 
 
@@ -41,7 +42,6 @@ class IBMCloudProvider(BaseCloudProvider):
 
                 href = service_link_soup['href']
                 if href.startswith('http'):
-                    print(href)
                     service_link = href
                 else:   
                     service_link = f"{base_url}{href}"
@@ -67,7 +67,8 @@ class IBMCloudProvider(BaseCloudProvider):
                     'name': service_name,
                     'short_description': service_short_desc,
                     'long_description': service_long_desc,
-                    'uri': service_link
+                    'link': service_link,
+                    'icon': ''
                 })
 
         return ibm_services

@@ -26,12 +26,16 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Services
-services: $(PYTHON_INTERPRETER) src/data/cloud/__init__.py
+services: # requirements
+	$(PYTHON_INTERPRETER) src/data/cloud/__init__.py
 
 ## Make Graph
 graph: #requirements
 	# services
 	$(PYTHON_INTERPRETER) src/data/graph/make_graph.py data/raw/
+
+dedupe_data: #requirements
+	$(PYTHON_INTERPRETER) src/data/dedupe/__init__.py
 
 related_services: 
 	$(PYTHON_INTERPRETER) src/data/graph/add_related_services.py data/processed/aws_azure_data_matching_output.csv

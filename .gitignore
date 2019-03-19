@@ -9,6 +9,9 @@ models/*
 src/app/services/models/*
 **/models
 
+deployment/.ssh
+deployment/parameters.json
+
 # Cache
 *.sqlite
 # Byte-compiled / optimized / DLL files

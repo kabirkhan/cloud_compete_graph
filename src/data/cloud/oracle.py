@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 from src.data.cloud._base import BaseCloudProvider
 
 
@@ -11,7 +12,6 @@ class OracleCloudProvider(BaseCloudProvider):
         return services
 
     def get_services(self, base_url):
-        print(base_url)
         soup = BeautifulSoup(requests.get(base_url).text, 'html.parser')
         cat_soups = soup.find('section', {'class': 'cw60'}).find_all('div', {'class': 'cw60w2'})
 
@@ -20,7 +20,6 @@ class OracleCloudProvider(BaseCloudProvider):
             cat_id = c_soup.find('a')['href'][1:]
             h6 = c_soup.find('h6', {'class': 'beforeblue'})
             cat_name = h6.text
-            print(cat_name)
 
             for s_soup in c_soup.find_all('div', {'class': 'cw60w4'}):
                 name = s_soup.find('a').text

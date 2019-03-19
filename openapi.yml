@@ -1,0 +1,302 @@
+openapi: 3.0.2
+info:
+  title: Cloud Compete Graph NER
+  version: 1.0.0
+  description: API for the Cloud Compete Graph Named Entity Recognition models
+paths:
+  /ccg/extract:
+    post:
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+        - NER
+      summary: Extract Post
+      operationId: extract_extract_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentsRequest'
+        required: true
+  /ccg/azure_cognitive_search:
+    post:
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AzureSearchDocumentsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+        - NER
+        - Azure Search
+      summary: Extract For Azure Search Post
+      description: |-
+        Extract Cloud Services for each document in an Azure Search Index.
+            This route can be configured directly as a Cognitive Skill in Azure Search
+      operationId: extract_for_azure_search_azure_cognitive_search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AzureSearchDocumentsRequest'
+        required: true
+components:
+  schemas:
+    DocumentRequest:
+      title: DocumentRequest
+      required:
+        - id
+        - text
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        text:
+          title: Text
+          type: string
+        language:
+          title: Language
+          type: string
+          default: en
+    DocumentsRequest:
+      title: DocumentsRequest
+      required:
+        - documents
+      type: object
+      properties:
+        documents:
+          title: Documents
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentRequest'
+    EntityMatch:
+      title: EntityMatch
+      required:
+        - label
+        - text
+        - start
+        - end
+      type: object
+      properties:
+        label:
+          title: Label
+          type: string
+        text:
+          title: Text
+          type: string
+        start:
+          title: Start
+          type: integer
+        end:
+          title: End
+          type: integer
+        relation:
+          title: Relation
+          type: string
+        rootVerb:
+          title: Rootverb
+          type: string
+    CloudServiceEntity:
+      title: CloudServiceEntity
+      required:
+        - matches
+        - serviceId
+        - serviceName
+        - serviceShortDescription
+        - serviceLongDescription
+        - serviceUri
+        - serviceIconUri
+        - serviceCloud
+        - serviceCategories
+        - relatedServices
+      type: object
+      properties:
+        matches:
+          title: Matches
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityMatch'
+        serviceId:
+          title: Serviceid
+          type: string
+        serviceName:
+          title: Servicename
+          type: string
+        serviceShortDescription:
+          title: Serviceshortdescription
+          type: string
+        serviceLongDescription:
+          title: Servicelongdescription
+          type: string
+        serviceUri:
+          title: Serviceuri
+          type: string
+        serviceIconUri:
+          title: Serviceiconuri
+          type: string
+        serviceCloud:
+          title: Servicecloud
+          type: string
+        serviceCategories:
+          title: Servicecategories
+          type: array
+          items:
+            type: string
+        relatedServices:
+          title: Relatedservices
+          type: array
+          items:
+            type: string
+    AzureSearchDocumentDataRequest:
+      title: AzureSearchDocumentDataRequest
+      required:
+        - text
+      type: object
+      properties:
+        text:
+          title: Text
+          type: string
+        language:
+          title: Language
+          type: string
+          default: en
+    DocumentResponse:
+      title: DocumentResponse
+      required:
+        - id
+        - cloudServices
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        cloudServices:
+          title: Cloudservices
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudServiceEntity'
+    AzureSearchDocumentDataResponse:
+      title: AzureSearchDocumentDataResponse
+      required:
+        - cloudServices
+      type: object
+      properties:
+        cloudServices:
+          title: Cloudservices
+          type: array
+          items:
+            type: string
+    AzureSearchDocumentRequest:
+      title: AzureSearchDocumentRequest
+      required:
+        - recordId
+        - data
+      type: object
+      properties:
+        recordId:
+          title: Recordid
+          type: string
+        data:
+          $ref: '#/components/schemas/AzureSearchDocumentDataRequest'
+    AzureSearchDocumentsRequest:
+      title: AzureSearchDocumentsRequest
+      required:
+        - values
+      type: object
+      properties:
+        values:
+          title: Values
+          type: array
+          items:
+            $ref: '#/components/schemas/AzureSearchDocumentRequest'
+    DocumentsResponse:
+      title: DocumentsResponse
+      required:
+        - documents
+      type: object
+      properties:
+        documents:
+          title: Documents
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentResponse'
+    AzureSearchDocumentResponse:
+      title: AzureSearchDocumentResponse
+      required:
+        - recordId
+        - data
+      type: object
+      properties:
+        recordId:
+          title: Recordid
+          type: string
+        data:
+          $ref: '#/components/schemas/AzureSearchDocumentDataResponse'
+        errors:
+          title: Errors
+          type: array
+          items:
+            type: string
+        warnings:
+          title: Warnings
+          type: array
+          items:
+            type: string
+    AzureSearchDocumentsResponse:
+      title: AzureSearchDocumentsResponse
+      required:
+        - values
+      type: object
+      properties:
+        values:
+          title: Values
+          type: array
+          items:
+            $ref: '#/components/schemas/AzureSearchDocumentResponse'
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            type: string
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'

@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 from src.data.cloud._base import BaseCloudProvider
+from tqdm import tqdm
 
 
 class AWSCloudProvider(BaseCloudProvider):

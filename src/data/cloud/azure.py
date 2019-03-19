@@ -3,63 +3,71 @@ import json
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 from src.data.cloud._base import BaseCloudProvider
 
 
 class AzureCloudProvider(BaseCloudProvider):
     def scrape_services(self):
-        AZURE_DOCS_URL = 'https://docs.microsoft.com/en-us/azure/'
-        
-        soup = BeautifulSoup(requests.get(AZURE_DOCS_URL + '#pivot=products').text, 'html.parser')
-        
-        azure_services = []
-        categories_soup = soup.find('ul', {'id': 'products'}).find_all(
-            'a', {'data-linktype': 'self-bookmark'}
-        )
-        categories_soup = categories_soup[1:]
+        base_url = 'https://azure.microsoft.com'
 
-        for category in categories_soup:
-            category_id = category['href'][1:]
+        soup = BeautifulSoup(requests.get(f'{base_url}/services').text, 'html.parser')
+        products_soup = soup.find('div', {'id': 'products-list'})
+        services = []
 
-            category_soup = soup.find('ul', {'id': category_id})
-            
-            for link_soup in category_soup.find_all('a'):
-                card_soup = link_soup.find('div', {'class': 'card'})
-                service_name = card_soup.find('h3').text
-                if 'Azure' not in service_name:
-                    service_name = f'Azure {service_name}'
+        for cat in products_soup.find_all('div', {'class': 'row-size3'}):
+            nextNode = cat
+            cat_id = cat.find('h2', {'class': 'product-category'})['id']
+            cat_name = cat.find('h2', {'class': 'product-category'}).text.strip()
+            try:
+                cat_link = f"{base_url}{cat.find('a')['href']}"
+            except:
+                cat_link = ''
+            while True:
+                nextNode = nextNode.nextSibling.nextSibling
 
-                href = link_soup['href']
-                # if not href.startswith('https'):
-                link = f"https://docs.microsoft.com{href}"
+                try:
+                    class_names = nextNode.get('class')
+                except:
+                    break
                 
-                short_description = card_soup.find('p').text.strip()
-                try:
-                    service_page_soup = BeautifulSoup(requests.get(link).text, 'html.parser')
-                except:
-                    print("Could not access page: ", link)
-                    print("Skipping")
-                    continue
+                if 'row-size2' in class_names:
+                    names = [h2.text.strip() for h2 in nextNode.find_all('h2')]
+                    links = [a['href'] for a in nextNode.find_all('a')]
+                    descs = [p.text.strip() for p in nextNode.find_all('p')]
                     
-                try:
-                    abstract = service_page_soup.find('div', {'class': 'abstract'}).find('p').text
-                except:
-                    try:
-                        # Redirected to an overview page which doesn't have an abstract.
-                        # Grab the initial paragraph
-                        abstract = service_page_soup.find('main').find('p').text
-                    except:
-                        print('Could not get abstract or initial paragraph describing ', service_name)
-                        abstract = short_description
-                    
-                azure_services.append({
-                    'category_id': category_id,
-                    'category_name': category.text.strip(),
-                    'icon': f"{AZURE_DOCS_URL}{card_soup.find('img')['src']}",
-                    'name': service_name,
-                    'short_description': short_description,
-                    'long_description': abstract,
-                    'link': link
-                })
+                    for i in range(len(names)):
+                        link = f"{base_url}{links[i]}"
+                        svc_soup = BeautifulSoup(requests.get(link).text, 'html.parser')
+                        long_desc = svc_soup.find('meta', {'name': 'description'})['content']
+                        
+                        try:
+                            docs_btn = svc_soup.find('nav', {'class': 'sub-nav'}).find(text='Documentation').parent
+                        except:
+                            try:
+                                docs_btn = svc_soup.find('nav', {'id': 'global-subnav'}).find_all('a', {'class', 'external-link'})[-1]
+                            except:
+                                try:
+                                    docs_btn = svc_soup.find('nav', {'class': 'sub-nav'}).find(text='Developer Guide').parent
+                                except:
+                                    continue
 
-        return azure_services
+                        if docs_btn and docs_btn.get('href'):
+                            documentation_links = docs_btn['href']
+                        else:
+                            documentation_links = [a['href'] for a in docs_btn.nextSibling.nextSibling.find_all('a')]
+                        
+                        services.append({
+                            'category_id': cat_id,
+                            'category_name': cat_name,
+                            'category_link': cat_link,
+                            'name': names[i],
+                            'link': link,
+                            'short_description': descs[i],
+                            'long_description': long_desc,
+                            'icon': '',
+                            'documentation_links': documentation_links
+                        })
+                else:
+                    break
+        return services

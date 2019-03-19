@@ -16,7 +16,11 @@ from src.data.graph.gremlin import GremlinQueryBuilder
 
 def get_svc_id(gremlin_qm, svc_name):
         q = f'g.V().has("name", "{svc_name}").values("id")'
-        return gremlin_qm.query(q)[0]
+        print(svc_name)
+        print(q)
+        id = gremlin_qm.query(q)
+        print('ID =', id)
+        return id[0]
 
 
 def build_related_query(from_id, to_id, score):
@@ -44,10 +48,11 @@ def add_related_services(data_matching_output_filepath):
     gremlin_qm = GremlinQueryManager(account_name, master_key, db_name, graph_name)
 
     df = pd.read_csv(data_matching_output_filepath)
-    related_df = df[df['Link Score'] > 0.6].sort_values(['Cluster ID'])
+    related_df = df[df['Link Score'] > 0.6].sort_values(['Cluster ID', 'source file'])
 
     for i in range(list(related_df['Cluster ID'])[-1] + 1):
         related_services = related_df[related_df['Cluster ID'] == i].reset_index(drop=True)
+        
         cloud_a_svc = related_services.iloc[0]
         cloud_b_svc = related_services.iloc[1]
         
