@@ -28,7 +28,7 @@ steps:
     echo "registry:" >> ./forge.yaml
     echo "  type: docker" >> ./forge.yaml
     echo "  url: $AZ_ACR_ACCOUNT.azurecr.io" >> ./forge.yaml
-    echo "  user: $AZ_ACR_ACCOUNTcr" >> ./forge.yaml
+    echo "  user: $AZ_ACR_ACCOUNT" >> ./forge.yaml
     echo -n "  password: " >> ./forge.yaml
     printf $AZ_ACR_PASSWORD | base64 >> ./forge.yaml
     echo "  namespace: $AZ_ACR_ACCOUNT" >> ./forge.yaml
