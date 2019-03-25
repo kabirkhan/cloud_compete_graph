@@ -24,9 +24,9 @@ class displaCyENT {
         if(typeof this.onStart === 'function') this.onStart();
 
         return fetch(this.api, {
-            method: "POST", // *GET, POST, PUT, DELETE, etc.
-            mode: "cors", // no-cors, cors, *same-origin
-            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -43,27 +43,6 @@ class displaCyENT {
             console.error('ERROR: ', error)
             if(typeof this.onError === 'function') this.onError(error);
         })
-        // xhr.open('POST', this.api, true);
-        // xhr.setRequestHeader('Content-type', 'application/json');
-        // xhr.onreadystatechange = () => {
-        //     if(xhr.readyState === 4 && xhr.status === 200) {
-        //         const documentsRes = JSON.parse(xhr.responseText).documents
-        //         const cloudServices = documentsRes[0].cloudServices
-        //         if(typeof this.onSuccess === 'function') this.onSuccess();
-        //         this.render(text, cloudServices || [], ents);
-        //     }
-
-        //     else if(xhr.status !== 200) {
-        //         if(typeof this.onError === 'function') this.onError(xhr.statusText);
-        //     }
-        // }
-
-        // xhr.onerror = () => {
-        //     xhr.abort();
-        //     if(typeof this.onError === 'function') this.onError();
-        // }
-
-        // xhr.send(JSON.stringify({ documents: [{id: "1", text }]}));
     }
 
     render(text, cloudServices, ents) {
