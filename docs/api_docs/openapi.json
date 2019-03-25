@@ -1,15 +1,15 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "Cloud Compete Graph NER",
-        "description": "API for the Cloud Compete Graph Named Entity Recognition models",
+        "title": "Cloud Compete Graph",
+        "description": "API for the Cloud Compete Graph",
         "version": "1.0"
     },
     "servers": [{
-        "url": "https://cloudconceptgraph.azure-api.net"
+        "url": "https://cloudcompetegraph.azure-api.net"
     }],
     "paths": {
-        "/ner/extract": {
+        "/ner/v1/extract": {
             "post": {
                 "summary": "Extract cloud services from document text as Named Entities",
                 "description": "Extract cloud services from document text as Named Entities",
@@ -48,7 +48,47 @@
                 }
             }
         },
-        "/clouds": {
+        "/ner/v1/azure_cognitive_search": {
+            "post": {
+                "tags": ["Named Entity Recognition", "Azure Search"],
+                "summary": "Extract For Azure Search Post",
+                "description": "Extract Cloud Services for each document in an Azure Search Index.\n    This route can be configured directly as a Cognitive Skill in Azure Search",
+                "operationId": "extract_for_azure_search_azure_cognitive_search_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AzureSearchDocumentsRequest"
+                            },
+                            "example": {
+                                "values": [
+                                    {
+                                        "recordId": "1",
+                                        "data": {
+                                            "text": "Create serverless logic with Azure Functions and event hubs",
+                                            "language": "en"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AzureSearchDocumentsResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/clouds": {
             "get": {
                 "description": "Get all cloud providers",
                 "operationId": "get-cloudshttptrigger",
@@ -61,7 +101,7 @@
                 }
             }
         },
-        "/categories": {
+        "/v1/categories": {
             "get": {
                 "description": "Get all categories.",
                 "operationId": "get-categorieshttptrigger",
@@ -82,7 +122,7 @@
                 }
             }
         },
-        "/services": {
+        "/v1/services": {
             "get": {
                 "description": "GET Services by cloud_id or category_id",
                 "operationId": "5c5423127dafdb8c02157394",
@@ -110,7 +150,7 @@
                 }
             }
         },
-        "/services/{service_id}": {
+        "/v1/services/{service_id}": {
             "get": {
                 "description": "GET Services",
                 "operationId": "get-serviceshttptrigger",
@@ -132,7 +172,7 @@
                 }
             }
         },
-        "/search": {
+        "/v1/search": {
             "get": {
                 "description": "Gets cloud services from a search query. This api allows a pass through to Azure Search, for query information see the Azure Search docs: https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents",
                 "operationId": "get-services-search",
@@ -258,7 +298,7 @@
                 }
             }
         },
-        "/suggest": {
+        "/v1/suggest": {
             "get": {
                 "description": "Suggest search terms based on a partial search query that you can use for the endpoint",
                 "operationId": "search-suggestions",
@@ -279,7 +319,7 @@
                 }
             }
         },
-        "/gremlin": {
+        "/v1/gremlin": {
             "post": {
                 "description": "POST Gremlin Query",
                 "operationId": "post-gremlinqueryhttptrigger",
@@ -444,6 +484,145 @@
                 "properties": {
                     "query": {
                         "type": "string"
+                    }
+                }
+            },
+            "AzureSearchDocumentDataRequest": {
+                "title": "AzureSearchDocumentDataRequest",
+                "required": ["text"],
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "title": "Text",
+                        "type": "string"
+                    },
+                    "language": {
+                        "title": "Language",
+                        "type": "string",
+                        "default": "en"
+                    }
+                }
+            },
+            "AzureSearchDocumentDataResponse": {
+                "title": "AzureSearchDocumentDataResponse",
+                "required": ["cloudServices"],
+                "type": "object",
+                "properties": {
+                    "cloudServices": {
+                        "title": "Cloudservices",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "AzureSearchDocumentRequest": {
+                "title": "AzureSearchDocumentRequest",
+                "required": ["recordId", "data"],
+                "type": "object",
+                "properties": {
+                    "recordId": {
+                        "title": "Recordid",
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/AzureSearchDocumentDataRequest"
+                    }
+                }
+            },
+            "AzureSearchDocumentsRequest": {
+                "title": "AzureSearchDocumentsRequest",
+                "required": ["values"],
+                "type": "object",
+                "properties": {
+                    "values": {
+                        "title": "Values",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AzureSearchDocumentRequest"
+                        }
+                    }
+                }
+            },
+            "AzureSearchDocumentResponse": {
+                "title": "AzureSearchDocumentResponse",
+                "required": ["recordId", "data"],
+                "type": "object",
+                "properties": {
+                    "recordId": {
+                        "title": "Recordid",
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/AzureSearchDocumentDataResponse"
+                    },
+                    "errors": {
+                        "title": "Errors",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "warnings": {
+                        "title": "Warnings",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "AzureSearchDocumentsResponse": {
+                "title": "AzureSearchDocumentsResponse",
+                "required": ["values"],
+                "type": "object",
+                "properties": {
+                    "values": {
+                        "title": "Values",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AzureSearchDocumentResponse"
+                        }
+                    }
+                }
+            },
+            "ValidationError": {
+                "title": "ValidationError",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "loc": {
+                        "title": "Location",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "msg": {
+                        "title": "Message",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Error Type",
+                        "type": "string"
+                    }
+                }
+            },
+            "HTTPValidationError": {
+                "title": "HTTPValidationError",
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "title": "Detail",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
                     }
                 }
             }
