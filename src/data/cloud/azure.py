@@ -56,12 +56,16 @@ class AzureCloudProvider(BaseCloudProvider):
                             documentation_links = docs_btn['href']
                         else:
                             documentation_links = [a['href'] for a in docs_btn.nextSibling.nextSibling.find_all('a')]
+
+                        svc_name = names[i]
+                        if 'Azure' not in svc_name and 'Bing' not in svc_name and 'Microsoft' not in svc_name:
+                            svc_name = f'Azure {svc_name}' 
                         
                         services.append({
                             'category_id': cat_id,
                             'category_name': cat_name,
                             'category_link': cat_link,
-                            'name': names[i],
+                            'name': svc_name,
                             'link': link,
                             'short_description': descs[i],
                             'long_description': long_desc,

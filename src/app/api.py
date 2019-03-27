@@ -1,5 +1,7 @@
 import os
 import multiprocessing as mp
+import asyncio
+from typing import List
 
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI
@@ -48,10 +50,10 @@ app.add_middleware(
 )
 
 
-def extract_from_text(text: str):
+async def extract_from_text(text: str):
     """Extract Cloud Services from raw text"""
     cloud_services = {}
-    for ent, service, relation, root_verb in cse.extract(text):
+    for ent, service, relation, root_verb in await cse.extract(text):
         if service["id"] not in cloud_services:
             cloud_services[service["id"]] = {
                 "serviceId": service["id"],
@@ -79,13 +81,21 @@ def extract_from_text(text: str):
     return list(cloud_services.values())
 
 
+async def extract_from_doc(doc):
+    cloud_services = await extract_from_text(doc.text)
+    return {
+        'id': doc.id,
+        'cloudServices': cloud_services
+    }
+
+
 @app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url=f"{prefix}/docs")
 
 
 @app.post("/extract", response_model=DocumentsResponse, tags=["NER"])
-def extract(body: DocumentsRequest):
+async def extract(body: DocumentsRequest):
     """
     Example:
     {
@@ -98,11 +108,13 @@ def extract(body: DocumentsRequest):
         ]
     }
     """
-
-    documents_res = []
+    results = []
     for doc in body.documents:
-        cloud_services = extract_from_text(doc.text)
-        documents_res.append({"id": doc.id, "cloudServices": cloud_services})
+        result = extract_from_doc(doc)
+        results.append(result)
+    
+    documents_res = await asyncio.gather(*results)
+    
     return {"documents": documents_res}
 
 

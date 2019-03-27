@@ -17,20 +17,20 @@ class CloudServiceExtractor:
         self.nlp = spacy.load("en_ner_azure_lg")
         print("Done")
 
-    def resolve_service_name(self, name, threshold=0.8):
+    async def resolve_service_name(self, name, threshold=0.8):
         """
         Resolve the name of the service from the 
         NER model to the search index
         """
-        res = self.search_client.suggest(name)
+        res = await self.search_client.suggest(name)
 
         try:
             res.raise_for_status()
             suggestion = res.json()["value"][0] if res.json()["value"] else name
             if isinstance(suggestion, str):
-                search_res = self.search_client.search(name)
+                search_res = await self.search_client.search(name)
             else:
-                search_res = self.search_client.search(suggestion["@search.text"])
+                search_res = await self.search_client.search(suggestion["@search.text"])
             search_res.raise_for_status()
             top_res = search_res.json()["value"][0]
             return top_res
@@ -38,10 +38,11 @@ class CloudServiceExtractor:
             print(f'Could not resolve: {name}')
             return None
 
-    def extract(self, text, ent_labels=[AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE]):
+    async def extract(self, text, ent_labels=[AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE]):
         """
         Extract Named Entity Cloud services and relationships in text
         """
+        
         try:
             doc = self.nlp(text)
         except ValueError:
@@ -51,8 +52,10 @@ class CloudServiceExtractor:
         for span in spans:
             span.merge()
 
+        res = []
+
         for ent in filter(lambda w: w.ent_type_ in ent_labels, doc):
-            service = self.resolve_service_name(ent.text)
+            service = await self.resolve_service_name(ent.text)
             if service:
                 relation = None
                 root_verb = None
@@ -70,9 +73,13 @@ class CloudServiceExtractor:
                         if cur.pos_ == "VERB":
                             root_verb = cur
                             break
-                        else:
-                            cur = cur.head
+                        if cur.head == cur:
+                            break
+                        cur = cur.head
 
-                yield Span(
+                ent_span = Span(
                     doc, ent.i, ent.i + 1, label=ent.ent_type
-                ), service, relation, root_verb
+                )
+                res.append((ent_span, service, relation, root_verb))
+
+        return res

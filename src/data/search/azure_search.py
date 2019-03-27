@@ -1,6 +1,8 @@
+import os
 import requests
 import requests_cache
 from datetime import timedelta
+from dotenv import find_dotenv, load_dotenv
 
 
 requests_cache.install_cache('cloud_service_ner_search', expire_after=timedelta(days=1))
@@ -15,7 +17,7 @@ class AzureSearchClient:
             'api-key': api_key
         }
                 
-    def search(self, search_term, userSkills=None, k=10):
+    async def search(self, search_term, userSkills=None, k=10):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs'
 
         params = {
@@ -31,7 +33,7 @@ class AzureSearchClient:
         res = requests.get(search_url, headers=self.default_headers, params=params)
         return res
 
-    def suggest(self, search_term):
+    async def suggest(self, search_term):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs/suggest'
         params = {
             'api-version': '2017-11-11-preview',
