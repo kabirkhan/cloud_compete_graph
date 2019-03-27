@@ -31,7 +31,7 @@ if not prefix:
     prefix = ""
 prefix = prefix.rstrip("/")
 
-search_client = AzureSearchClient(search_account_name, search_api_key, 'services')
+search_client = AzureSearchClient(search_account_name, search_api_key, "services")
 cse = CloudServiceExtractor(search_client)
 
 
@@ -83,10 +83,7 @@ async def extract_from_text(text: str):
 
 async def extract_from_doc(doc):
     cloud_services = await extract_from_text(doc.text)
-    return {
-        'id': doc.id,
-        'cloudServices': cloud_services
-    }
+    return {"id": doc.id, "cloudServices": cloud_services}
 
 
 @app.get("/", include_in_schema=False)
@@ -112,9 +109,9 @@ async def extract(body: DocumentsRequest):
     for doc in body.documents:
         result = extract_from_doc(doc)
         results.append(result)
-    
+
     documents_res = await asyncio.gather(*results)
-    
+
     return {"documents": documents_res}
 
 
@@ -123,13 +120,15 @@ async def extract(body: DocumentsRequest):
     response_model=AzureSearchDocumentsResponse,
     tags=["NER", "Azure Search"],
 )
-def extract_for_azure_search(body: AzureSearchDocumentsRequest):
+async def extract_for_azure_search(body: AzureSearchDocumentsRequest):
     """Extract Cloud Services for each document in an Azure Search Index.
     This route can be configured directly as a Cognitive Skill in Azure Search"""
 
     values_res = []
     for val in body.values:
-        cloud_services = [c["serviceName"] for c in extract_from_text(val.data.text)]
+        cloud_services = [
+            c["serviceName"] for c in await extract_from_text(val.data.text)
+        ]
         values_res.append(
             {"recordId": val.recordId, "data": {"cloudServices": cloud_services}}
         )

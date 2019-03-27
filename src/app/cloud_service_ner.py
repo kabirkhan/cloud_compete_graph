@@ -35,14 +35,14 @@ class CloudServiceExtractor:
             top_res = search_res.json()["value"][0]
             return top_res
         except:
-            print(f'Could not resolve: {name}')
+            print(f"Could not resolve: {name}")
             return None
 
     async def extract(self, text, ent_labels=[AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE]):
         """
         Extract Named Entity Cloud services and relationships in text
         """
-        
+
         try:
             doc = self.nlp(text)
         except ValueError:
@@ -77,9 +77,7 @@ class CloudServiceExtractor:
                             break
                         cur = cur.head
 
-                ent_span = Span(
-                    doc, ent.i, ent.i + 1, label=ent.ent_type
-                )
+                ent_span = Span(doc, ent.i, ent.i + 1, label=ent.ent_type)
                 res.append((ent_span, service, relation, root_verb))
 
         return res
