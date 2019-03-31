@@ -50,7 +50,7 @@
         },
         "/ner/v1/extract_async": {
             "post": {
-                "tags": ["NER", "Async"],
+                "tags": ["Named Entity Recognition", "Async"],
                 "summary": "Extract Async Post",
                 "description": "Run extraction for batch of documents in the background",
                 "operationId": "extract_async_extract_async_post",
@@ -98,7 +98,7 @@
         },
         "/ner/v1/status": {
             "get": {
-                "tags": ["NER", "Async"],
+                "tags": ["Named Entity Recognition", "Async"],
                 "summary": "Request Status Get",
                 "description": "Get the status of an async extraction.",
                 "operationId": "request_status_status_get",
