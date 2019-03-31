@@ -58,7 +58,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Extract_asyncPostRequest"
+                                "$ref": "#/components/schemas/Documents"
                             },
                             "example": {
                                 "documents": [
