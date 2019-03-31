@@ -59,6 +59,15 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/Extract_asyncPostRequest"
+                            },
+                            "example": {
+                                "documents": [
+                                    {
+                                        "id": "1",
+                                        "text": "Create serverless logic with Azure Functions and event hubs",
+                                        "language": "en"
+                                    }
+                                ]
                             }
                         }
                     }
@@ -87,7 +96,7 @@
                 }
             }
         },
-        "ner/v1/status": {
+        "/ner/v1/status": {
             "get": {
                 "tags": ["NER", "Async"],
                 "summary": "Request Status Get",
