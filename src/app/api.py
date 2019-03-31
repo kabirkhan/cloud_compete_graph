@@ -29,8 +29,8 @@ from src.data.search.azure_search import AzureSearchClient
 
 load_dotenv(find_dotenv())
 
-redis_host = os.getenv('AZURE_REDIS_HOST')
-redis_key = os.getenv('AZURE_REDIS_KEY')
+redis_host = os.getenv("AZURE_REDIS_HOST")
+redis_key = os.getenv("AZURE_REDIS_KEY")
 search_account_name = os.getenv("AZURE_SEARCH_ACCOUNT_NAME")
 search_api_key = os.getenv("AZURE_SEARCH_KEY")
 prefix = os.getenv("CLUSTER_ROUTE_PREFIX")
@@ -95,7 +95,7 @@ async def extract_from_text(text: str):
             if root_verb:
                 match["rootVerb"] = root_verb.lemma_
             cloud_services[service["id"]]["matches"].append(match)
-        
+
         result = list(cloud_services.values())
         cache.set(request_id, json.dumps(result))
 
@@ -110,7 +110,7 @@ async def extract_from_doc(doc):
 
 async def extract_from_docs_and_save(request_id, docs):
     """Extract Cloud Services from a batch of documents and cache the result"""
-    
+
     results = []
     for doc in docs:
         result = extract_from_doc(doc)
@@ -129,15 +129,15 @@ def root():
 async def extract(
     body: DocumentsRequest = Body(
         ...,
-        example = {
+        example={
             "documents": [
                 {
                     "id": "1",
                     "text": "Create serverless logic with Azure Functions",
-                    "language": "en"
+                    "language": "en",
                 }
             ]
-        }
+        },
     )
 ):
     """Extract Cloud Services for each document."""
@@ -152,31 +152,30 @@ async def extract(
     return {"documents": documents_res}
 
 
-@app.post("/extract_async", response_model=AsyncStatusDocumentsResponse, tags=["NER", "Async"])
+@app.post(
+    "/extract_async", response_model=AsyncStatusDocumentsResponse, tags=["NER", "Async"]
+)
 async def extract_async(
     background_tasks: BackgroundTasks,
     body: DocumentsRequest = Body(
         ...,
-        example = {
+        example={
             "documents": [
                 {
                     "id": "1",
                     "text": "Create serverless logic with Azure Functions",
-                    "language": "en"
+                    "language": "en",
                 }
             ]
-        }
-    )
+        },
+    ),
 ):
     """Run extraction for batch of documents in the background"""
 
     request_id = str(uuid.uuid4())
     background_tasks.add_task(extract_from_docs_and_save, request_id, body.documents)
-    
-    return {
-        "request_id": request_id,
-        "status": "Running"
-    }
+
+    return {"request_id": request_id, "status": "Running"}
 
 
 @app.get("/status", response_model=AsyncStatusDocumentsResponse, tags=["NER", "Async"])
@@ -189,15 +188,10 @@ def request_status(request_id: str):
         return {
             "request_id": request_id,
             "status": "Completed",
-            "result": {
-                'documents': result
-            }
+            "result": {"documents": result},
         }
     else:
-        return {
-            "request_id": request_id,
-            "status": "Running"
-        }
+        return {"request_id": request_id, "status": "Running"}
 
 
 @app.post(
@@ -208,17 +202,17 @@ def request_status(request_id: str):
 async def extract_for_azure_search(
     body: AzureSearchDocumentsRequest = Body(
         ...,
-        example = {
+        example={
             "values": [
                 {
                     "recordId": "a1",
                     "data": {
                         "text": "Create serverless logic with Azure Functions",
-                        "language": "en"
-                    }
+                        "language": "en",
+                    },
                 }
             ]
-        }
+        },
     )
 ):
     """Extract Cloud Services for each document in an Azure Search Index.

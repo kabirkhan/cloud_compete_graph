@@ -6,7 +6,7 @@ from src.app.api import app
 from src.app.models import AsyncStatus, RuntimeEnvironment
 
 
-os.environ['RUNTIME_ENVIRONMENT'] = RuntimeEnvironment.TESTING
+os.environ["RUNTIME_ENVIRONMENT"] = RuntimeEnvironment.TESTING
 
 
 def load_docs_request_body():
@@ -46,7 +46,7 @@ def test_documents_api_success():
 
 def test_extract_async():
     client = TestClient(app)
-    
+
     request_body = load_docs_request_body()
 
     response = client.post("extract_async", json=request_body)
@@ -57,7 +57,7 @@ def test_extract_async():
 
     time.sleep(4)
 
-    response = client.get("status", params={'request_id': request_id})
+    response = client.get("status", params={"request_id": request_id})
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == AsyncStatus.Completed

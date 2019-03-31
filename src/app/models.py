@@ -51,9 +51,9 @@ class DocumentsResponse(BaseModel):
 
 
 class AsyncStatus(str, Enum):
-    Completed = 'Completed'
-    Running = 'Running'
-    Failed = 'Failed'
+    Completed = "Completed"
+    Running = "Running"
+    Failed = "Failed"
 
 
 class AsyncStatusDocumentsResponse(BaseModel):
