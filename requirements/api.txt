@@ -1,5 +1,6 @@
 azure-cosmos==3.0.2
 fastapi
+redis
 python-dotenv>=0.5.1
 requests
 requests-cache

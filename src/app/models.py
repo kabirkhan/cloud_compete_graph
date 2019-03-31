@@ -1,5 +1,12 @@
+from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel, Schema
+
+
+class RuntimeEnvironment(str, Enum):
+    PRODUCTION = "PRODUCTION"
+    DEVELOPMENT = "DEVELOPMENT"
+    TESTING = "TESTING"
 
 
 class DocumentRequest(BaseModel):
@@ -41,6 +48,18 @@ class DocumentResponse(BaseModel):
 
 class DocumentsResponse(BaseModel):
     documents: List[DocumentResponse]
+
+
+class AsyncStatus(str, Enum):
+    Completed = 'Completed'
+    Running = 'Running'
+    Failed = 'Failed'
+
+
+class AsyncStatusDocumentsResponse(BaseModel):
+    request_id: str
+    status: AsyncStatus
+    result: Optional[DocumentsResponse]
 
 
 # Azure Search Cognitive Skills Models

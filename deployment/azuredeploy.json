@@ -123,6 +123,52 @@
             "metadata": {
                 "description": "The name of the API Management Service"
             }
+        },
+        "redisCacheSKU": {
+            "type": "string",
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+            ],
+            "defaultValue": "Standard",
+            "metadata": {
+                "description": "The pricing tier of the new Azure Redis Cache."
+            }
+        },
+        "redisCacheFamily": {
+            "type": "string",
+            "defaultValue": "C",
+            "metadata": {
+                "description": "The family for the sku."
+            },
+            "allowedValues": [
+                "C",
+                "P"
+            ]
+        },
+        "redisCacheCapacity": {
+            "type": "int",
+            "allowedValues": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "defaultValue": 1,
+            "metadata": {
+              "description": "The size of the new Azure Redis Cache instance. "
+            }
+        },
+        "enableNonSslPort": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+              "description": "A boolean value that indicates whether to allow access via non-SSL ports."
+            }
         }
     },
     "variables": {
@@ -135,7 +181,7 @@
         "application-insights-account-name": "[concat(parameters('prefixparam'), '-insights')]",
         "functions-storage-account-name": "[concat(parameters('prefixparam'), 'funcapistorage')]",
         "searchName": "[concat(parameters('prefixparam'), 'search')]",
-        
+        "redisCacheName": "[concat(parameters('prefixparam'), 'cache')]"        
     },
     "resources": [
         {
@@ -318,6 +364,20 @@
             "properties": {
               "publisherEmail": "[parameters('publisherEmail')]",
               "publisherName": "[parameters('publisherName')]"
+            }
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "name": "[variables('redisCacheName')]",
+            "type": "Microsoft.Cache/Redis",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "enableNonSslPort": "[parameters('enableNonSslPort')]",
+              "sku": {
+                "capacity": "[parameters('redisCacheCapacity')]",
+                "family": "[parameters('redisCacheFamily')]",
+                "name": "[parameters('redisCacheSKU')]"
+              }
             }
         }
     ],

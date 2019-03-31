@@ -41,6 +41,8 @@ steps:
   env:
     AZURE_SEARCH_ACCOUNT_NAME: $(AZURE_SEARCH_ACCOUNT_NAME)
     AZURE_SEARCH_KEY: $(AZURE_SEARCH_KEY)
+    AZURE_REDIS_HOST: $(AZURE_REDIS_HOST)
+    AZURE_REDIS_KEY: $(AZURE_REDIS_HOST)
   displayName: Write Config
 - script: |
     forge --profile stable build
