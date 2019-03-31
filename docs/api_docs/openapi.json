@@ -48,6 +48,86 @@
                 }
             }
         },
+        "/ner/v1/extract_async": {
+            "post": {
+                "tags": ["NER", "Async"],
+                "summary": "Extract Async Post",
+                "description": "Run extraction for batch of documents in the background",
+                "operationId": "extract_async_extract_async_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Extract_asyncPostRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncStatusDocumentsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ner/v1/status": {
+            "get": {
+                "tags": ["NER", "Async"],
+                "summary": "Request Status Get",
+                "description": "Get the status of an async extraction.",
+                "operationId": "request_status_status_get",
+                "parameters": [{
+                    "name": "request_id",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "requestBody": {
+                    "content": {}
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AsyncStatusDocumentsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ner/v1/azure_cognitive_search": {
             "post": {
                 "tags": ["Named Entity Recognition", "Azure Search"],
@@ -584,6 +664,25 @@
                         "items": {
                             "$ref": "#/components/schemas/AzureSearchDocumentResponse"
                         }
+                    }
+                }
+            },
+            "AsyncStatusDocumentsResponse": {
+                "title": "AsyncStatusDocumentsResponse",
+                "required": ["request_id", "status"],
+                "type": "object",
+                "properties": {
+                    "request_id": {
+                        "title": "Request_Id",
+                        "type": "string"
+                    },
+                    "status": {
+                        "title": "Status",
+                        "enum": ["Completed", "Running", "Failed"],
+                        "type": "string"
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/DocumentsResponse"
                     }
                 }
             },

@@ -140,7 +140,7 @@ async def extract(
         },
     )
 ):
-    """Extract Cloud Services for each document."""
+    """Extract Cloud Services for a batch of documents."""
 
     results = []
     for doc in body.documents:
