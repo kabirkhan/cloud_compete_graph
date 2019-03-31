@@ -20,7 +20,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Documents"
+                                "$ref": "#/components/schemas/DocumentsRequest"
                             },
                             "example": {
                                 "documents": [
@@ -40,7 +40,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ServicesResponseSchema"
+                                    "$ref": "#/components/schemas/DocumentsResponse"
                                 }
                             }
                         }
@@ -58,7 +58,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Documents"
+                                "$ref": "#/components/schemas/DocumentsRequest"
                             },
                             "example": {
                                 "documents": [
@@ -110,9 +110,6 @@
                         "type": "string"
                     }
                 }],
-                "requestBody": {
-                    "content": {}
-                },
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -437,136 +434,6 @@
     },
     "components": {
         "schemas": {
-            "DocumentSchema": {
-                "required": ["id", "language", "text"],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "language": {
-                        "type": "string"
-                    },
-                    "text": {
-                        "type": "string"
-                    }
-                }
-            },
-            "DocumentServices": {
-                "required": ["cloudServices", "id"],
-                "type": "object",
-                "properties": {
-                    "cloudServices": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Service"
-                        }
-                    },
-                    "id": {
-                        "type": "string"
-                    }
-                }
-            },
-            "Documents": {
-                "required": ["documents"],
-                "type": "object",
-                "properties": {
-                    "documents": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/DocumentSchema"
-                        }
-                    }
-                }
-            },
-            "Match": {
-                "type": "array",
-                "items": {
-                    "required": ["end", "label", "start", "text"],
-                    "type": "object",
-                    "properties": {
-                        "end": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "label": {
-                            "type": "string"
-                        },
-                        "start": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "text": {
-                            "type": "string"
-                        },
-                        "relation": {
-                            "type": "string"
-                        },
-                        "rootVerb": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "Service": {
-                "type": "array",
-                "items": {
-                    "required": ["matches", "relatedServices", "serviceCategories", "serviceName", "serviceShortDescription", "serviceUri"],
-                    "type": "object",
-                    "properties": {
-                        "matches": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/components/schemas/Match"
-                            }
-                        },
-                        "relatedServices": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "serviceCategories": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "serviceName": {
-                            "type": "string"
-                        },
-                        "serviceShortDescription": {
-                            "type": "string"
-                        },
-                        "serviceLongDescription": {
-                            "type": "string"
-                        },
-                        "serviceUri": {
-                            "type": "string",
-                            "format": "url"
-                        },
-                        "serviceIconUri": {
-                            "type": "string",
-                            "format": "url"
-                        },
-                        "serviceCloud": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "ServicesResponseSchema": {
-                "required": ["documents"],
-                "type": "object",
-                "properties": {
-                    "documents": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/DocumentServices"
-                        }
-                    }
-                }
-            },
             "GremlinQueryRequest": {
                 "required": ["query"],
                 "type": "object",
@@ -592,20 +459,6 @@
                     }
                 }
             },
-            "AzureSearchDocumentDataResponse": {
-                "title": "AzureSearchDocumentDataResponse",
-                "required": ["cloudServices"],
-                "type": "object",
-                "properties": {
-                    "cloudServices": {
-                        "title": "Cloudservices",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
             "AzureSearchDocumentRequest": {
                 "title": "AzureSearchDocumentRequest",
                 "required": ["recordId", "data"],
@@ -620,6 +473,104 @@
                     }
                 }
             },
+            "AsyncStatusDocumentsResponse": {
+                "title": "AsyncStatusDocumentsResponse",
+                "required": ["request_id", "status"],
+                "type": "object",
+                "properties": {
+                    "request_id": {
+                        "title": "Request_Id",
+                        "type": "string"
+                    },
+                    "status": {
+                        "title": "Status",
+                        "enum": ["Completed", "Running", "Failed"],
+                        "type": "string"
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/DocumentsResponse"
+                    }
+                }
+            },
+            "EntityMatch": {
+                "title": "EntityMatch",
+                "required": ["label", "text", "start", "end"],
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "title": "Label",
+                        "type": "string"
+                    },
+                    "text": {
+                        "title": "Text",
+                        "type": "string"
+                    },
+                    "start": {
+                        "title": "Start",
+                        "type": "integer"
+                    },
+                    "end": {
+                        "title": "End",
+                        "type": "integer"
+                    },
+                    "relation": {
+                        "title": "Relation",
+                        "type": "string"
+                    },
+                    "rootVerb": {
+                        "title": "Rootverb",
+                        "type": "string"
+                    }
+                }
+            },
+            "AzureSearchDocumentDataResponse": {
+                "title": "AzureSearchDocumentDataResponse",
+                "required": ["cloudServices"],
+                "type": "object",
+                "properties": {
+                    "cloudServices": {
+                        "title": "Cloudservices",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "DocumentRequest": {
+                "title": "DocumentRequest",
+                "required": ["id", "text"],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "string"
+                    },
+                    "text": {
+                        "title": "Text",
+                        "type": "string"
+                    },
+                    "language": {
+                        "title": "Language",
+                        "type": "string",
+                        "default": "en"
+                    }
+                }
+            },
+            "DocumentsRequest": {
+                "title": "DocumentsRequest",
+                "required": ["documents"],
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "title": "Documents",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentRequest"
+                        }
+                    }
+                }
+            },
             "AzureSearchDocumentsRequest": {
                 "title": "AzureSearchDocumentsRequest",
                 "required": ["values"],
@@ -630,6 +581,62 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/AzureSearchDocumentRequest"
+                        }
+                    }
+                }
+            },
+            "CloudServiceEntity": {
+                "title": "CloudServiceEntity",
+                "required": ["matches", "serviceId", "serviceName", "serviceShortDescription", "serviceLongDescription", "serviceUri", "serviceIconUri", "serviceCloud", "serviceCategories", "relatedServices"],
+                "type": "object",
+                "properties": {
+                    "matches": {
+                        "title": "Matches",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EntityMatch"
+                        }
+                    },
+                    "serviceId": {
+                        "title": "Serviceid",
+                        "type": "string"
+                    },
+                    "serviceName": {
+                        "title": "Servicename",
+                        "type": "string"
+                    },
+                    "serviceShortDescription": {
+                        "title": "Serviceshortdescription",
+                        "type": "string"
+                    },
+                    "serviceLongDescription": {
+                        "title": "Servicelongdescription",
+                        "type": "string"
+                    },
+                    "serviceUri": {
+                        "title": "Serviceuri",
+                        "type": "string"
+                    },
+                    "serviceIconUri": {
+                        "title": "Serviceiconuri",
+                        "type": "string"
+                    },
+                    "serviceCloud": {
+                        "title": "Servicecloud",
+                        "type": "string"
+                    },
+                    "serviceCategories": {
+                        "title": "Servicecategories",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "relatedServices": {
+                        "title": "Relatedservices",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
                         }
                     }
                 }
@@ -676,32 +683,41 @@
                     }
                 }
             },
-            "AsyncStatusDocumentsResponse": {
-                "title": "AsyncStatusDocumentsResponse",
-                "required": ["request_id", "status"],
+            "DocumentResponse": {
+                "title": "DocumentResponse",
+                "required": ["id", "cloudServices"],
                 "type": "object",
                 "properties": {
-                    "request_id": {
-                        "title": "Request_Id",
+                    "id": {
+                        "title": "Id",
                         "type": "string"
                     },
-                    "status": {
-                        "title": "Status",
-                        "enum": ["Completed", "Running", "Failed"],
-                        "type": "string"
-                    },
-                    "result": {
-                        "$ref": "#/components/schemas/DocumentsResponse"
+                    "cloudServices": {
+                        "title": "Cloudservices",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CloudServiceEntity"
+                        }
+                    }
+                }
+            },
+            "DocumentsResponse": {
+                "title": "DocumentsResponse",
+                "required": ["documents"],
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "title": "Documents",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentResponse"
+                        }
                     }
                 }
             },
             "ValidationError": {
                 "title": "ValidationError",
-                "required": [
-                    "loc",
-                    "msg",
-                    "type"
-                ],
+                "required": ["loc", "msg", "type"],
                 "type": "object",
                 "properties": {
                     "loc": {
@@ -732,6 +748,27 @@
                             "$ref": "#/components/schemas/ValidationError"
                         }
                     }
+                }
+            },
+            "ExtractAsyncPostRequest": {
+                "title": "DocumentsRequest",
+                "required": ["documents"],
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "title": "Documents",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentsRequest"
+                        }
+                    }
+                },
+                "example": {
+                    "documents": [{
+                        "id": 1,
+                        "text": "Create serverless logic with Azure Functions",
+                        "language": "en"
+                    }]
                 }
             }
         }
