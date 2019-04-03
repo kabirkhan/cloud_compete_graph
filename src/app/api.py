@@ -1,9 +1,9 @@
+import json
 import os
 import multiprocessing as mp
 import asyncio
 from typing import List
 import uuid
-import json
 
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Body, BackgroundTasks
@@ -140,7 +140,7 @@ async def extract(
         },
     )
 ):
-    """Extract Cloud Services for a batch of documents."""
+    """Extract Cloud Services for a batch document."""
 
     results = []
     for doc in body.documents:

@@ -17,13 +17,14 @@ class AzureSearchClient:
             'api-key': api_key
         }
                 
-    async def search(self, search_term, userSkills=None, k=10):
+    async def search(self, search_term, userSkills=None, k=10, filter_=''):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs'
 
         params = {
             'api-version': '2017-11-11-preview',
             'search': search_term,
-            '$top': k
+            '$top': k,
+            '$filter': filter_
         }
         
         if userSkills:
@@ -33,7 +34,7 @@ class AzureSearchClient:
         res = requests.get(search_url, headers=self.default_headers, params=params)
         return res
 
-    async def suggest(self, search_term):
+    async def suggest(self, search_term, filter_=''):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs/suggest'
         params = {
             'api-version': '2017-11-11-preview',
@@ -42,7 +43,8 @@ class AzureSearchClient:
             'scoringProfile': 'boostName',
             'autocompleteMode': 'twoTerms',
             'suggesterName': 'suggest-name',
-            'fuzzy': True
+            'fuzzy': True,
+            '$filter': filter_
         }
         res = requests.get(search_url, headers=self.default_headers, params=params)
         return res
@@ -54,7 +56,7 @@ class AzureSearchClient:
                 'name': self.index_name,
                 'fields': fields_config,
                 'suggesters': suggesters,
-                'scoringProfiles': scoring_profiles
+                'scoringProfiles': scoring_profiles,
             }
         }
         delete_res = requests.delete(f"https://{self.account_name}.search.windows.net/indexes/{self.index_name}?api-version=2017-11-11", **kwargs)

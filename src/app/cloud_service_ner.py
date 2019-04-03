@@ -22,15 +22,19 @@ class CloudServiceExtractor:
         Resolve the name of the service from the 
         NER model to the search index
         """
-        res = await self.search_client.suggest(name)
+        filter_ = "cloud eq 'Microsoft Azure'"
+        res = await self.search_client.suggest(name, filter_=filter_)
 
         try:
             res.raise_for_status()
             suggestion = res.json()["value"][0] if res.json()["value"] else name
+
             if isinstance(suggestion, str):
-                search_res = await self.search_client.search(name)
+                search_res = await self.search_client.search(name, filter_=filter_)
             else:
-                search_res = await self.search_client.search(suggestion["@search.text"])
+                search_res = await self.search_client.search(
+                    suggestion["@search.text"], filter_=filter_
+                )
             search_res.raise_for_status()
             top_res = search_res.json()["value"][0]
             return top_res
