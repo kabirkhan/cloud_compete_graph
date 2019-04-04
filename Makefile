@@ -40,6 +40,9 @@ dedupe_data: #requirements
 related_services: 
 	$(PYTHON_INTERPRETER) src/data/graph/add_related_services.py data/processed/aws_azure_data_matching_output.csv
 
+search: #requirements
+	$(PYTHON_INTERPRETER) src/data/search/make_search_index.py
+
 ## Make Dataset
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset
