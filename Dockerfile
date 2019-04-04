@@ -1,4 +1,5 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+ENV WEB_CONCURRENCY 2
 ENV APP_MODULE src.app.api:app
 ENV PORT 8080
 EXPOSE ${PORT}
