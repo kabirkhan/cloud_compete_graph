@@ -1,7 +1,7 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
-# ENV PORT 8080
-# EXPOSE ${PORT}
 ENV APP_MODULE src.app.api:app
+ENV PORT 8080
+EXPOSE ${PORT}
 
 # RUN apk add build-base
 
