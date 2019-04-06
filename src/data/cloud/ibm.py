@@ -39,6 +39,8 @@ class IBMCloudProvider(BaseCloudProvider):
             for card_soup in services_soup.find_all('div', {'class': 'ibm-card'}):
                 service_link_soup = card_soup.find('a')
                 service_name = service_link_soup.text.strip()
+                if 'IBM' not in service_name:
+                    service_name = f'IBM {service_name}'
 
                 href = service_link_soup['href']
                 if href.startswith('http'):

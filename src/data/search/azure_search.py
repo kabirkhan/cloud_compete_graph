@@ -17,24 +17,20 @@ class AzureSearchClient:
             'api-key': api_key
         }
                 
-    async def search(self, search_term, userSkills=None, k=10, filter_=''):
+    async def search(self, search_term, search_params={}, k=10):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs'
 
         params = {
             'api-version': '2017-11-11-preview',
             'search': search_term,
-            '$top': k,
-            '$filter': filter_
+            '$top': k
         }
+        params.update(search_params)
         
-        if userSkills:
-            params['scoringProfile'] = 'skills'
-            params['scoringParameter'] = f'skills-{userSkills}'
-
         res = requests.get(search_url, headers=self.default_headers, params=params)
         return res
 
-    async def suggest(self, search_term, filter_=''):
+    async def suggest(self, search_term):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs/suggest'
         params = {
             'api-version': '2017-11-11-preview',
@@ -43,8 +39,7 @@ class AzureSearchClient:
             'scoringProfile': 'boostName',
             'autocompleteMode': 'twoTerms',
             'suggesterName': 'suggest-name',
-            'fuzzy': True,
-            '$filter': filter_
+            'fuzzy': True
         }
         res = requests.get(search_url, headers=self.default_headers, params=params)
         return res

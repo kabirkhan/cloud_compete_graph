@@ -37,29 +37,15 @@ class AzureCloudProvider(BaseCloudProvider):
                     descs = [p.text.strip() for p in nextNode.find_all('p')]
                     
                     for i in range(len(names)):
+                        svc_name = names[i]
+                        ids = ['Azure', 'Bing', 'Microsoft', 'Xamarin', 'Visual Studio']
+                        no_id = all([i not in svc_name for i in ids])
+                        if no_id:
+                            svc_name = f'Azure {svc_name}' 
+                        
                         link = f"{base_url}{links[i]}"
                         svc_soup = BeautifulSoup(requests.get(link).text, 'html.parser')
                         long_desc = svc_soup.find('meta', {'name': 'description'})['content']
-                        
-                        try:
-                            docs_btn = svc_soup.find('nav', {'class': 'sub-nav'}).find(text='Documentation').parent
-                        except:
-                            try:
-                                docs_btn = svc_soup.find('nav', {'id': 'global-subnav'}).find_all('a', {'class', 'external-link'})[-1]
-                            except:
-                                try:
-                                    docs_btn = svc_soup.find('nav', {'class': 'sub-nav'}).find(text='Developer Guide').parent
-                                except:
-                                    continue
-
-                        if docs_btn and docs_btn.get('href'):
-                            documentation_links = docs_btn['href']
-                        else:
-                            documentation_links = [a['href'] for a in docs_btn.nextSibling.nextSibling.find_all('a')]
-
-                        svc_name = names[i]
-                        if 'Azure' not in svc_name and 'Bing' not in svc_name and 'Microsoft' not in svc_name:
-                            svc_name = f'Azure {svc_name}' 
                         
                         services.append({
                             'category_id': cat_id,
@@ -69,8 +55,7 @@ class AzureCloudProvider(BaseCloudProvider):
                             'link': link,
                             'short_description': descs[i],
                             'long_description': long_desc,
-                            'icon': '',
-                            'documentation_links': documentation_links
+                            'icon': ''
                         })
                 else:
                     break

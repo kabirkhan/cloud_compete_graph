@@ -5,36 +5,35 @@ import spacy
 from spacy.tokens import Span
 
 from src.app.exceptions import DocumentParseError
-from src.app.labels import AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE
+from src.app.labels import LABELS
 
 
 class CloudServiceExtractor:
-    def __init__(self, search_client):
+    def __init__(self, search_client, model="en_ner_cloud_lg"):
 
         self.search_client = search_client
 
         print("Loading NER model...", end="")
-        self.nlp = spacy.load("en_ner_azure_lg")
+        self.nlp = spacy.load(model)
+        self.nlp.add_pipe(self.nlp.create_pipe("merge_entities"))
         print("Done")
 
-    async def resolve_service_name(self, name, threshold=0.8):
+    async def resolve_service_name(self, name, ent_label, threshold=0.8):
         """
         Resolve the name of the service from the 
         NER model to the search index
         """
-        filter_ = "cloud eq 'Microsoft Azure'"
-        res = await self.search_client.suggest(name, filter_=filter_)
+        cloud_filter = f"cloud eq '{LABELS[ent_label]}'"
 
+        search_params = {
+            "queryType": "full",
+            "searchFields": "name",
+            "filter": cloud_filter,
+        }
         try:
-            res.raise_for_status()
-            suggestion = res.json()["value"][0] if res.json()["value"] else name
-
-            if isinstance(suggestion, str):
-                search_res = await self.search_client.search(name, filter_=filter_)
-            else:
-                search_res = await self.search_client.search(
-                    suggestion["@search.text"], filter_=filter_
-                )
+            search_res = await self.search_client.search(
+                name, search_params=search_params
+            )
             search_res.raise_for_status()
             top_res = search_res.json()["value"][0]
             return top_res
@@ -42,24 +41,18 @@ class CloudServiceExtractor:
             print(f"Could not resolve: {name}")
             return None
 
-    async def extract(self, text, ent_labels=[AWS_SERVICE, AZURE_SERVICE, GCP_SERVICE]):
+    async def extract(self, text, ent_labels=list(LABELS.keys())):
         """
         Extract Named Entity Cloud services and relationships in text
         """
-
         try:
             doc = self.nlp(text)
         except ValueError:
             raise DocumentParseError
 
-        spans = list(doc.ents) + list(doc.noun_chunks)
-        for span in spans:
-            span.merge()
-
         res = []
-
         for ent in filter(lambda w: w.ent_type_ in ent_labels, doc):
-            service = await self.resolve_service_name(ent.text)
+            service = await self.resolve_service_name(ent.text, ent.ent_type_)
             if service:
                 relation = None
                 root_verb = None

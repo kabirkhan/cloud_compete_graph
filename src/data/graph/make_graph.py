@@ -76,11 +76,20 @@ def add_cloud(gremlin_qm, data_directory, cloud_abbr, cloud_name):
     return cloud_id, categories, services_df
 
 
+def filter_stop_words(cat: str, stop_words: list = ['Services']):
+    for w in stop_words:
+        if w in cat:
+            cat = cat.replace(w, '').strip()
+    return cat
+        
+
 def normalize_category_lists(a_cats: list, b_cats: list, ratio=75, normalized_cats={}):
     _normalized_cats = normalized_cats.copy()
     for a_cat in a_cats:
         for b_cat in b_cats:
-            if fuzz.ratio(a_cat, b_cat) > ratio or a_cat in b_cat or b_cat in a_cat:
+            a_check = filter_stop_words(a_cat)
+            b_check = filter_stop_words(b_cat)
+            if fuzz.ratio(a_check, b_check) > ratio or a_cat in b_cat or b_cat in a_cat:
                 if normalized_cats:
                     _normalized_cats[a_cat] = b_cat
                 else:
@@ -125,10 +134,10 @@ def construct_base_graph(data_directory):
     """Constructs the base graph in a Cosmos DB Graph"""
     load_dotenv(find_dotenv())
 
-    account_name = os.environ.get('COSMOS_ACCOUNT_NAME')
-    db_name = os.environ.get('COSMOS_DB_NAME')
-    graph_name = os.environ.get('COSMOS_GRAPH_NAME')
-    master_key = os.environ.get('COSMOS_MASTER_KEY')
+    account_name = os.getenv('COSMOS_ACCOUNT_NAME')
+    db_name = os.getenv('COSMOS_DB_NAME')
+    graph_name = os.getenv('COSMOS_GRAPH_NAME')
+    master_key = os.getenv('COSMOS_MASTER_KEY')
 
     gremlin_qm = GremlinQueryManager(account_name, master_key, db_name, graph_name)
 

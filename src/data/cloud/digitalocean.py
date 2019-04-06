@@ -20,6 +20,8 @@ class DigitalOceanCloudProvider(BaseCloudProvider):
             cat_desc = cat_soup.find('p').text.strip()
             for svc_soup in cat_soup.find_all('a', {'class': 'www-Card'}):
                 name = svc_soup.find('h4').text.strip()
+                if 'Digital' not in name:
+                    name = f'DigitalOcean {name}'
                 link = svc_soup['href'].strip()
                 url = f'{base_url}{link}'
                 

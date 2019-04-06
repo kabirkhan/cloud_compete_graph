@@ -6,6 +6,12 @@ class GremlinQueryBuilder:
     Basic functions to build gremlin queries that add vertices and edges
     """
     @classmethod
+    def name_to_id(cls, name):
+        if '(' in name:
+            name = name[name.idx('(') - 1]
+        return name.replace(' ', '-')
+
+    @classmethod
     def gremlin_escape(cls, s):
         return s.replace('"', '\\"').replace('$', '\\$')
     
@@ -19,12 +25,6 @@ class GremlinQueryBuilder:
 
     @classmethod
     def build_upsert_edge_query(cls, from_id, to_id, edge_properties):
-        """
-        g.V().has('person','name','vadas').as('v').
-           V().has('software','name','ripple').
-           coalesce(__.inE('created').where(outV().as('v')),
-                    addE('created').from('v').property('weight',0.5))
-        """
         label = edge_properties["label"]
         return f"""g.V("{from_id}").as('v').
                     V("{to_id}").

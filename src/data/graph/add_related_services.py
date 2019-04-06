@@ -15,12 +15,9 @@ from src.data.graph.gremlin import GremlinQueryBuilder
 
 
 def get_svc_id(gremlin_qm, svc_name):
-        q = f'g.V().has("name", "{svc_name}").values("id")'
-        print(svc_name)
-        print(q)
-        id = gremlin_qm.query(q)
-        print('ID =', id)
-        return id[0]
+        q = f'g.V().has("name", "{svc_name}").project("id", "relatedServices").by("id").by(out("related_service").fold())'
+        res = gremlin_qm.query(q)
+        return res[0]['id'], [s['id'] for s in res[0]['relatedServices']]
 
 
 def build_related_query(from_id, to_id, score):
@@ -52,15 +49,30 @@ def add_related_services(data_matching_output_filepath):
 
     for i in range(list(related_df['Cluster ID'])[-1] + 1):
         related_services = related_df[related_df['Cluster ID'] == i].reset_index(drop=True)
+        try:
+            cloud_a_svc = related_services.iloc[0]
+            cloud_b_svc = related_services.iloc[1]
+        except:
+            continue
         
-        cloud_a_svc = related_services.iloc[0]
-        cloud_b_svc = related_services.iloc[1]
-        
-        cloud_a_id = get_svc_id(gremlin_qm, cloud_a_svc['name'])
-        cloud_b_id = get_svc_id(gremlin_qm, cloud_b_svc['name'])
+        cloud_a_id, cloud_a_related = get_svc_id(gremlin_qm, cloud_a_svc['name'])
+        cloud_b_id, cloud_b_related = get_svc_id(gremlin_qm, cloud_b_svc['name'])
+
+        print(cloud_b_related, cloud_b_related)
         
         print(f'Adding related_service edges between {cloud_a_svc["name"]} and {cloud_b_svc["name"]}')
         gremlin_qm.query(build_related_query(cloud_a_id, cloud_b_id, cloud_a_svc['Link Score']))
+        gremlin_qm.query(build_related_query(cloud_b_id, cloud_a_id, cloud_a_svc['Link Score']))
+
+        for rs_id in cloud_a_related:
+            if rs_id != cloud_b_id:
+                print('adding to related', rs_id, cloud_b_id)
+                gremlin_qm.query(build_related_query(rs_id, cloud_b_id, cloud_a_svc['Link Score']))
+        
+        for rs_id in cloud_b_related:
+            if rs_id != cloud_a_id:
+                print('adding to related', rs_id, cloud_a_id)
+                gremlin_qm.query(build_related_query(rs_id, cloud_a_id, cloud_a_svc['Link Score']))
 
 
 if __name__ == '__main__':

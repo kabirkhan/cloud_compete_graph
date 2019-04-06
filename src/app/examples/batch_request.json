@@ -1,0 +1,9 @@
+{
+    "documents": [
+      {
+        "id": "a1",
+        "text": "You can create serverless functions on many different cloud platforms. The primary services are AWS Lambda, Azure Functions, Google Cloud Functions and IBM Cloud Functions.",
+        "language": "en"
+      }
+    ]
+  }

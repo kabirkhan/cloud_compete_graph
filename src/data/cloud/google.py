@@ -28,9 +28,17 @@ class GoogleCloudProvider(BaseCloudProvider):
             
             for i in range(len(headlines)):
                 link = headlines[i]['href']
+
+                name = headlines[i].text.strip()
+
+                ids = ['Google', 'GCP', 'GKE', 'Firebase', 'Apigee']
+                no_id = all([i not in name for i in ids])
+                if no_id:
+                    name = f'Google {name}'
+
                 service = {
                     'category_name': cat_title,
-                    'name': headlines[i].text.strip(),
+                    'name': name,
                     'short_description': sub_headlines[i].text.strip(),
                     'long_description': '',
                     'link': headlines[i]['href'],

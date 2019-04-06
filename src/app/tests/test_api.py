@@ -3,16 +3,11 @@ import json
 import time
 from starlette.testclient import TestClient
 from src.app.api import app
+from src.app.examples import load_examples
 from src.app.models import AsyncStatus, RuntimeEnvironment
 
 
 os.environ["RUNTIME_ENVIRONMENT"] = RuntimeEnvironment.TESTING
-
-
-def load_docs_request_body():
-    with open("src/app/tests/data/request_body.json") as request_body_file:
-        request_body = json.load(request_body_file)
-    return request_body
 
 
 def validate_documents_response(data):
@@ -36,9 +31,9 @@ def test_api_validation_error():
 def test_documents_api_success():
     client = TestClient(app)
 
-    request_body = load_docs_request_body()
+    batch_request, _ = load_examples()
 
-    response = client.post("extract", json=request_body)
+    response = client.post("extract", json=batch_request)
     assert response.status_code == 200
     data = response.json()
     validate_documents_response(data)
@@ -47,9 +42,9 @@ def test_documents_api_success():
 def test_extract_async():
     client = TestClient(app)
 
-    request_body = load_docs_request_body()
+    batch_request, _ = load_examples()
 
-    response = client.post("extract_async", json=request_body)
+    response = client.post("extract_async", json=batch_request)
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == AsyncStatus.Running
@@ -67,21 +62,13 @@ def test_extract_async():
 def test_azure_cognitive_search_success():
     client = TestClient(app)
 
-    request_body = {
-        "values": [
-            {
-                "recordId": "a1",
-                "data": {
-                    "text": "Create serverless logic with Azure Functions",
-                    "language": "en",
-                },
-            }
-        ]
-    }
-    response = client.post("azure_cognitive_search", json=request_body)
+    _, az_req_body = load_examples()
+    response = client.post("azure_cognitive_search", json=az_req_body)
     assert response.status_code == 200
     data = response.json()
     assert "values" in data
     for doc in data["values"]:
         assert "recordId" in doc
         assert "cloudServices" in doc["data"]
+        for c in doc["data"]["cloudServices"]:
+            assert isinstance(c, str)

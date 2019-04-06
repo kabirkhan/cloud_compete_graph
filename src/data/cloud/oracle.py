@@ -23,6 +23,8 @@ class OracleCloudProvider(BaseCloudProvider):
 
             for s_soup in c_soup.find_all('div', {'class': 'cw60w4'}):
                 name = s_soup.find('a').text
+                if 'Oracle' not in name:
+                    name = f'Oracle {name}'
                 link = s_soup.find('a')['href']
                 short_desc = s_soup.find('p').text
                 if link.startswith('/'):

@@ -35,6 +35,8 @@ class AWSCloudProvider(BaseCloudProvider):
             text = s.text.strip()
             desc = s.find('span').text.strip()
             name = text[:text.index(desc)]
+            if 'AWS' not in name and 'Amazon' not in name:
+                name = f'AWS {name}'
             
             service_detail_soup = BeautifulSoup(requests.get(url).text, 'html.parser')
             full_description = '\n'.join([p.text for p in service_detail_soup.find_all('p')[:3]])

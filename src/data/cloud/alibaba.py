@@ -19,6 +19,9 @@ class AlibabaCloudProvider(BaseCloudProvider):
             services = c_soup.find('div', {'class': 'group-body'})
             for service in services.find_all('li'):
                 name = service.text.strip()
+                if 'Alibaba' not in name:
+                    name = f'Alibaba {name}'
+
                 link = service.find('a')['href']
                 if not link.startswith('https'):
                     link = f"{base_url}/{link}"

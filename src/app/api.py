@@ -14,6 +14,7 @@ from redis import Redis
 from src.app.exceptions import DocumentParseError
 from src.app.cache import Cache
 from src.app.cloud_service_ner import CloudServiceExtractor
+from src.app.examples import load_examples
 from src.app.models import (
     RuntimeEnvironment,
     DocumentRequest,
@@ -59,6 +60,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+batch_request, az_request = load_examples()
 
 
 async def extract_from_text(text: str):
@@ -126,20 +130,7 @@ def root():
 
 
 @app.post("/extract", response_model=DocumentsResponse, tags=["NER"])
-async def extract(
-    body: DocumentsRequest = Body(
-        ...,
-        example={
-            "documents": [
-                {
-                    "id": "1",
-                    "text": "Create serverless logic with Azure Functions",
-                    "language": "en",
-                }
-            ]
-        },
-    )
-):
+async def extract(body: DocumentsRequest = Body(..., example=batch_request)):
     """Extract Cloud Services for a batch document."""
 
     results = []
@@ -157,18 +148,7 @@ async def extract(
 )
 async def extract_async(
     background_tasks: BackgroundTasks,
-    body: DocumentsRequest = Body(
-        ...,
-        example={
-            "documents": [
-                {
-                    "id": "1",
-                    "text": "Create serverless logic with Azure Functions",
-                    "language": "en",
-                }
-            ]
-        },
-    ),
+    body: DocumentsRequest = Body(..., example=batch_request),
 ):
     """Run extraction for batch of documents in the background"""
 
@@ -200,20 +180,7 @@ def request_status(request_id: str):
     tags=["NER", "Azure Search"],
 )
 async def extract_for_azure_search(
-    body: AzureSearchDocumentsRequest = Body(
-        ...,
-        example={
-            "values": [
-                {
-                    "recordId": "a1",
-                    "data": {
-                        "text": "Create serverless logic with Azure Functions",
-                        "language": "en",
-                    },
-                }
-            ]
-        },
-    )
+    body: AzureSearchDocumentsRequest = Body(..., example=az_request)
 ):
     """Extract Cloud Services for each document in an Azure Search Index.
     This route can be configured directly as a Cognitive Skill in Azure Search"""
