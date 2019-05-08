@@ -1,3 +1,4 @@
+import json
 import os
 from dotenv import find_dotenv, load_dotenv
 from src.data.cosmos import GremlinQueryManager
@@ -38,9 +39,24 @@ def make_services_search_index(index_name):
         {"name": "longDescription", "type": "Edm.String", "filterable": False, "sortable": False, "facetable": False},
         {"name": "uri", "type": "Edm.String", "facetable": False},
         {"name": "iconUri", "type": "Edm.String", "facetable": False},
-        {"name": "categories", "type": "Collection(Edm.String)"},
-        {"name": "relatedServices", "type": "Collection(Edm.String)", "searchable": False, "filterable": False, "sortable": False, "facetable": False},
-        {"name": "cloud", "type": "Edm.String", "searchable": False, "sortable": False}
+        {
+            "name": "categories", "type": "Collection(Edm.ComplexType)", "fields": [
+                {"name": "id", "type": "Edm.String", "searchable": False, "filterable": False, "sortable": False, "facetable": False},
+                {"name": "name", "type": "Edm.String", "searchable": True, "filterable": False, "sortable": False, "facetable": False}
+            ]
+        },
+        {
+            "name": "relatedServices", "type": "Collection(Edm.ComplexType)", "fields": [
+                {"name": "id", "type": "Edm.String", "searchable": False, "filterable": False, "sortable": False, "facetable": False},
+                {"name": "name", "type": "Edm.String", "searchable": True, "filterable": False, "sortable": False, "facetable": False}
+            ]
+        },
+        {
+            "name": "cloud", "type": "Edm.ComplexType", "fields": [
+                {"name": "id", "type": "Edm.String", "searchable": False, "filterable": False, "sortable": False, "facetable": False},
+                {"name": "name", "type": "Edm.String", "searchable": True, "filterable": False, "sortable": False, "facetable": False}
+            ]
+        }
     ]
 
     suggesters = [  
@@ -73,12 +89,15 @@ def make_services_search_index(index_name):
         q = f"""g.V().has("label", "{abbr}_service")
                 .project("id", "name", "shortDescription", "longDescription", "uri", "iconUri", "categories", "relatedServices", "cloud")
                 .by("id").by("name").by("short_description").by("long_description").by("uri").by("icon_uri")
-                .by(out("belongs_to").values("name").fold())
-                .by(coalesce(out("related_service").id().fold(), __.not(identity()).fold()))
-                .by(out("belongs_to").out("source_cloud").values("name"))"""
+                .by(out("belongs_to").project("id", "name").by(values("id")).by(values("name")).fold())
+                .by(coalesce(out("related_service").project("id", "name").by(values("id")).by(values("name")).fold(), __.not(identity()).fold()))
+                .by(out("belongs_to").out("source_cloud").project("id", "name").by(values("id")).by(values("name")))"""
         cloud_data = gremlin_qm.query(q)
         services_data += cloud_data
-        
+    
+    for s in services_data:
+        if s['name'] == 'Azure Functions':
+            print(json.dumps(s, indent=4))
     search_client.upload_data(services_data)
     print('Uploaded Services Data from Graph To Azure Search')
 

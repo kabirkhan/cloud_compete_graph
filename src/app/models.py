@@ -28,6 +28,11 @@ class EntityMatch(BaseModel):
     rootVerb: Optional[str] = None
 
 
+class IdName(BaseModel):
+    id: str
+    name: str
+
+
 class CloudServiceEntity(BaseModel):
     matches: List[EntityMatch]
     serviceId: str
@@ -36,9 +41,9 @@ class CloudServiceEntity(BaseModel):
     serviceLongDescription: str
     serviceUri: str
     serviceIconUri: str
-    serviceCloud: str
-    serviceCategories: List[str]
-    relatedServices: List[str]
+    serviceCloud: IdName
+    serviceCategories: List[IdName]
+    relatedServices: List[IdName]
 
 
 class DocumentResponse(BaseModel):

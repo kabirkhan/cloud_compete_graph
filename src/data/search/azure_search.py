@@ -9,19 +9,20 @@ requests_cache.install_cache('cloud_service_ner_search', expire_after=timedelta(
 
 
 class AzureSearchClient:
-    def __init__(self, account_name, api_key, index_name):
+    def __init__(self, account_name, api_key, index_name, api_version='2019-05-06-preview'):
         self.account_name = account_name
         self.api_key = api_key
         self.index_name = index_name
+        self.api_version = api_version
         self.default_headers = {
             'api-key': api_key
         }
-                
+    
     async def search(self, search_term, search_params={}, k=10):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs'
 
         params = {
-            'api-version': '2017-11-11-preview',
+            'api-version': self.api_version,
             'search': search_term,
             '$top': k
         }
@@ -33,7 +34,7 @@ class AzureSearchClient:
     async def suggest(self, search_term):
         search_url = f'https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs/suggest'
         params = {
-            'api-version': '2017-11-11-preview',
+            'api-version': self.api_version,
             'search': search_term,
             '$top': 3,
             'scoringProfile': 'boostName',
@@ -54,11 +55,11 @@ class AzureSearchClient:
                 'scoringProfiles': scoring_profiles,
             }
         }
-        delete_res = requests.delete(f"https://{self.account_name}.search.windows.net/indexes/{self.index_name}?api-version=2017-11-11", **kwargs)
+        delete_res = requests.delete(f"https://{self.account_name}.search.windows.net/indexes/{self.index_name}?api-version={self.api_version}", **kwargs)
         if delete_res.status_code > 299:
             print('Failed delete index')
         res = requests.post(
-            f"https://{self.account_name}.search.windows.net/indexes/?api-version=2017-11-11",
+            f"https://{self.account_name}.search.windows.net/indexes/?api-version={self.api_version}",
             **kwargs
         )
         return res
@@ -67,7 +68,7 @@ class AzureSearchClient:
         for i in range(len(data)):
             data[i]['@search.action'] = 'mergeOrUpload'
         res = requests.post(
-            f"https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs/index?api-version=2017-11-11",
+            f"https://{self.account_name}.search.windows.net/indexes/{self.index_name}/docs/index?api-version={self.api_version}",
             headers=self.default_headers,
             json={
                 'value': data
@@ -86,12 +87,12 @@ class AzureSearchClient:
         }
 
         res = requests.post(
-            f"https://{self.account_name}.search.windows.net/synonymmaps?api-version=2017-11-11",
+            f"https://{self.account_name}.search.windows.net/synonymmaps?api-version={self.api_version}",
             **kwargs
         )
         if res.status_code > 299:
             res = requests.put(
-                f"https://{self.account_name}.search.windows.net/synonymmaps/{name}?api-version=2017-11-11",
+                f"https://{self.account_name}.search.windows.net/synonymmaps/{name}?api-version={self.api_version}",
                 **kwargs
             )
             
