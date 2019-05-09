@@ -8,6 +8,7 @@ RUN pip3 install -r requirements/test.txt
 
 ENV PORT 8080
 ENV APP_MODULE src.app.api:app
+ENV WEB_CONCURRENCY 2
 ENV GUNICORN_CONF /app/src/gunicorn_conf.py
 COPY .env .env
 COPY ./src /app/src
