@@ -15,4 +15,6 @@ COPY ./src /app/src
 COPY gunicorn_conf.py /app/src/gunicorn_conf.py
 COPY start.sh /app
 
+RUN spacy validate
+
 CMD ["bash", "start.sh"]
