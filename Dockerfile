@@ -13,3 +13,6 @@ ENV GUNICORN_CONF /app/src/gunicorn_conf.py
 COPY .env .env
 COPY ./src /app/src
 COPY gunicorn_conf.py /app/src/gunicorn_conf.py
+COPY start.sh /app
+
+CMD ["bash", "start.sh"]
