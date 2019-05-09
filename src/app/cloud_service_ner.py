@@ -1,6 +1,7 @@
+from collections import defaultdict
 import os
 from typing import List
-from collections import defaultdict
+import en_ner_cloud_lg
 import spacy
 from spacy.tokens import Span
 
@@ -9,12 +10,12 @@ from src.app.labels import LABELS
 
 
 class CloudServiceExtractor:
-    def __init__(self, search_client, model="en_ner_cloud_lg"):
+    def __init__(self, search_client):
 
         self.search_client = search_client
 
         print("Loading NER model...", end="")
-        self.nlp = spacy.load(model)
+        self.nlp = en_ner_cloud_lg.load()
         self.nlp.add_pipe(self.nlp.create_pipe("merge_entities"))
         print("Done")
 
