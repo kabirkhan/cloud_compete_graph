@@ -6,4 +6,4 @@ requests
 requests-cache
 uvicorn==0.7.1
 spacy==2.1.3
-https://github.com/kabirkhan/ckg_models/releases/download/0.2.0-cloud/en_ner_cloud_lg-0.2.0.tar.gz
+https://github.com/kabirkhan/ckg_models/releases/download/0.3.0-cloud/en_ner_cloud_lg-0.3.0.tar.gz
