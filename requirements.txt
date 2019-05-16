@@ -16,8 +16,8 @@ spacy==2.0.18
 fuzzywuzzy==0.17.0
 python-levenshtein==0.12.0
 gremlinpython==3.2.7
-uvicorn
-fastapi
+uvicorn==0.7.1
+fastapi==0.2.0
 
 # Test
 pytest

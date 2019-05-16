@@ -1,0 +1,6 @@
+{"label":"GPE","pattern":[{"lower":"san"},{"lower":"francisco"}],"id":"a3"}
+{"label":"TECH_ORG","pattern":"Apple","id":"a1"}
+{"label":"TECH_ORG","pattern":"Google"}
+{"label":"GPE","pattern":[{"lower":"san"},{"lower":"francisco"}],"id":"a3"}
+{"label":"TECH_ORG","pattern":"Apple","id":"a1"}
+{"label":"TECH_ORG","pattern":"Google"}
